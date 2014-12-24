@@ -73,6 +73,8 @@ class Session(Logger):
             resp = self._session.get(url, **kwargs)
             resp_body = resp.content
         except (Timeout, RequestException, ConnectionError, HTTPError) as e:
+            self.debug(msg='Failed to open URL:{0} at time {1}' .format(url, datetime.now()),
+                       by='Open URL')
             self.debug(msg=str(e), by='Open URL')
             self.debug(msg=','.join(line.strip() for line in traceback.format_stack()), by='Open URL')
             raise e

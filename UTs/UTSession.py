@@ -15,7 +15,6 @@ class UTSession(unittest.TestCase):
         self.dut = Session()
         self.dut.log_file_name = 'UTSession'
 
-
     @httpretty.activate
     def _do_success(self, do_func):
         httpretty.register_uri(httpretty.GET, 'http://haijia.bjxueche.net/',
