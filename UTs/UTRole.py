@@ -3,12 +3,12 @@
 import unittest
 from Roles.Role import Role, RoleCreatorWithLogger
 from Roles.Logger import Logger
+from six import with_metaclass
 
 __author__ = 'mochenx'
 
 
-class UselessSubclassOfRole(object):
-    __metaclass__ = RoleCreatorWithLogger
+class UselessSubclassOfRole(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
     index = 0
 
     def __init__(self, **kwargs):
@@ -24,16 +24,14 @@ class UselessSubclassOfRole(object):
         return UselessSubclassOfRole()
 
 
-class Grandfather(object):
-    __metaclass__ = RoleCreatorWithLogger
+class Grandfather(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 
     @classmethod
     def create(cls):
         return Grandfather()
 
 
-class GrandMother(object):
-    __metaclass__ = RoleCreatorWithLogger
+class GrandMother(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 
     @classmethod
     def create(cls):
@@ -52,6 +50,7 @@ class Father(Grandfather):
 
 class Son(Father):
     new_property_cnt = 0
+
     def __init__(self, **kwargs):
         super(Son, self).__init__(**kwargs)
 
@@ -94,7 +93,7 @@ class UTRole(unittest.TestCase):
             print('Checking the {0} DUT whose index is {1}'.format(i, dut.get_index()))
             self.assertEqual(i, dut.get_index())
 
-    def test_fetch_arg_from_kwargs(self):
+    def test_new_property(self):
         duts = [Role.get('Son') for _ in range(10)]
         dut = duts[0]
         self.assertTrue(hasattr(dut, 'age'))

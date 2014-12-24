@@ -50,6 +50,6 @@ class RoleCreatorWithLogger(type):
         The Meta-class for creating subclass of Role, we can customize subclass dynamically.
     """
     def __new__(mcs, name, bases, class_dict):
-        result = type.__new__(mcs, name, (Role, Logger), dict(class_dict))
+        result = type.__new__(mcs, name, bases, dict(class_dict))
         result.register_self(result)
         return result
