@@ -52,19 +52,6 @@ class Session(Logger):
 
         return resp
 
-    def repeat_open_url_n_read(self, url, retry_times=10, **kwargs):
-        retry = True
-        retry_cnt = retry_times
-        resp_body = None
-        while retry:
-            retry_cnt -= 1
-            try:
-                resp, resp_body = self.open_url_n_read(url, **kwargs)
-                retry = False
-            except (Timeout, RequestException, ConnectionError, HTTPError) as e:
-                retry = True
-        return resp, resp_body
-
     def open_url_n_read(self, url, **kwargs):
         if 'timeout' not in kwargs:
             kwargs['timeout'] = self.timeout_parameters['open_url_n_read']
