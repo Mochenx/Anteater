@@ -9,6 +9,28 @@ class Role(object):
     registered_cls = {}
 
     @classmethod
+    def new_property(cls, property_name):
+        if hasattr(cls, property_name):
+            return False
+        inner_name = '_' + property_name
+
+        def _getter(obj):
+            if not hasattr(obj, inner_name):
+                setattr(obj, inner_name, None)
+            return getattr(obj, inner_name)
+
+        def _setter(obj, val):
+            if not hasattr(obj, inner_name):
+                setattr(obj, inner_name, None)
+            setattr(obj, inner_name, val)
+
+        setattr(cls, property_name, property(fget=_getter, fset=_setter))
+        return True
+
+    def __init__(self, **kwargs):
+        super(Role, self).__init__(**kwargs)
+
+    @classmethod
     def get(cls, name):
         klass = cls.registered_cls[name]
         return klass.create()
@@ -30,5 +52,4 @@ class RoleCreatorWithLogger(type):
     def __new__(mcs, name, bases, class_dict):
         result = type.__new__(mcs, name, (Role, Logger), dict(class_dict))
         result.register_self(result)
-        result._all_names = {}
         return result

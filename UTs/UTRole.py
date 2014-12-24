@@ -11,8 +11,8 @@ class UselessSubclassOfRole(object):
     __metaclass__ = RoleCreatorWithLogger
     index = 0
 
-    def __init__(self):
-        super(UselessSubclassOfRole, self).__init__()
+    def __init__(self, **kwargs):
+        super(UselessSubclassOfRole, self).__init__(**kwargs)
         self.index = UselessSubclassOfRole.index
         UselessSubclassOfRole.index += 1
 
@@ -42,8 +42,8 @@ class GrandMother(object):
 
 class Father(Grandfather):
 
-    def __init__(self):
-        super(Father, self).__init__()
+    def __init__(self, **kwargs):
+        super(Father, self).__init__(**kwargs)
 
     @classmethod
     def create(cls):
@@ -51,8 +51,16 @@ class Father(Grandfather):
 
 
 class Son(Father):
+    new_property_cnt = 0
+    def __init__(self, **kwargs):
+        super(Son, self).__init__(**kwargs)
+
     @classmethod
     def create(cls):
+        if cls.new_property('age'):
+            cls.new_property_cnt += 1
+        if cls.new_property('score'):
+            cls.new_property_cnt += 1
         return Son()
 
 
@@ -85,4 +93,28 @@ class UTRole(unittest.TestCase):
         for i, dut in enumerate(duts):
             print('Checking the {0} DUT whose index is {1}'.format(i, dut.get_index()))
             self.assertEqual(i, dut.get_index())
+
+    def test_fetch_arg_from_kwargs(self):
+        duts = [Role.get('Son') for _ in range(10)]
+        dut = duts[0]
+        self.assertTrue(hasattr(dut, 'age'))
+        self.assertTrue(hasattr(dut, 'score'))
+        self.assertIsNone(dut.age)
+        self.assertIsNone(dut.score)
+        dut.age = 10
+        dut.score = 99
+        self.assertEqual(dut.age, 10)
+        self.assertEqual(dut.score, 99)
+        self.assertEqual(dut._age, 10)
+        self.assertEqual(dut._score, 99)
+        print('Age: {0}, Score: {1}'.format(dut.age, dut.score))
+        dut._age = 11
+        dut._score = 98
+        self.assertEqual(dut.age, 11)
+        self.assertEqual(dut.score, 98)
+        print('Age: {0}, Score: {1}'.format(dut.age, dut.score))
+        self.assertEqual(dut.new_property_cnt, 2)
+        print('new_property in class<Son> has been called {0} times'.format(dut.new_property_cnt))
+
+
 
