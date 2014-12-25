@@ -41,9 +41,9 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         """
         CAPTCHA_rdr = CAPTCHARecognizer(self.session, prefix_fname=self.drivername)
 
-        login_post_data = self._get_login_form()
         for i in range(10):
             try:
+                login_post_data = self._get_login_form()
                 captcha = CAPTCHA_rdr.get_captcha()
                 self.debug(msg='CAPTCHA:{0}'.format(captcha), by='Login')
                 login_post_data.load_captcha(captcha)

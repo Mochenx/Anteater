@@ -51,5 +51,17 @@ class UTDriver(unittest.TestCase):
         self.assertRaises(ValueError, _no_session)
 
     def test_get_login_form(self):
+        self.shared_session.set_max_retry(for_url='http://haijia.bjxueche.net/', max_retries=5)
         self.driver.load_properties(drivername='John Smith', password='888888', session=self.shared_session)
-        print(self.driver._get_login_form())
+        login_form = self.driver._get_login_form()
+
+        self.assertTrue('txtUserName' in login_form)
+        self.assertTrue('txtPassword' in login_form)
+        self.assertTrue('txtIMGCode' in login_form)
+        self.assertTrue('rcode' in login_form)
+        self.assertEqual(login_form['txtUserName'], 'John Smith')
+        self.assertEqual(login_form['txtPassword'], '8'*6)
+        self.assertEqual(login_form['txtIMGCode'], None)
+        self.assertEqual(login_form['rcode'], None)
+
+
