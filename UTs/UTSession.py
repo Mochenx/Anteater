@@ -6,8 +6,41 @@ import socket
 import time
 from Roles.Session import Session, URLsForHJ
 from requests.exceptions import Timeout, RequestException, ConnectionError, HTTPError
+from threading import Thread, active_count
+from random import randrange
 
 __author__ = 'mochenx'
+
+
+class WorkerInMultiThreads(object):
+    def __init__(self, url, dut, timeout, index, tester):
+        self.url = url
+        self.dut = dut
+        self.timeout = timeout
+        self.index = index
+        self.tester = tester
+        self.run_pass = False
+
+    def run(self):
+        success_cnt = 0
+        timeout_cnt = 0
+        connect_err_cnt = 0
+        run_times = randrange(3, 7)
+        print('{0} will run {1} times'.format(self.index, run_times))
+        for _ in range(run_times):
+            try:
+                print('{0} tries to open url: {1}'.format(self.index, self.url))
+                self.dut.open_url_n_read(self.url, timeout=self.timeout)
+                success_cnt += 1
+            except Timeout as e:
+                timeout_cnt += 1
+                print('Timeout in {0}'.format(self.index))
+            except ConnectionError as e:
+                connect_err_cnt += 1
+                print('ConnectionError in {0}'.format(self.index))
+        print('{0} has succeed {1} times'.format(self.index, success_cnt))
+        self.tester.assertEqual(success_cnt + timeout_cnt + connect_err_cnt, run_times)
+        self.run_pass = True
 
 
 class UTSession(unittest.TestCase):
@@ -226,3 +259,26 @@ class UTSession(unittest.TestCase):
         self.dut.set_max_retry(for_url='http://haijia.bjxueche.net:81/', max_retries=5)
         self._do_multi_timeout_failed(_test, (self.dut.timeout_parameters['post_with_response']+0.5)*5)
         self._do_multi_timeout_failed(_test_with_timeout_args, (3+0.8)*5)
+
+    def test_multi_threads(self):
+        urls = ['http://en.wiktionary.org',
+                'http://en.wiktionary.org',
+                'http://en.wiktionary.org',
+                'http://www.google.com',
+                'http://www.google.com'
+                ]
+
+        workers = [WorkerInMultiThreads(v, self.dut, i+4, i, self) for i, v in enumerate(urls)]
+        working_threads = [Thread(target=worker.run) for worker in workers]
+
+        existed_threads = active_count()
+        print('Before starting, {0} threads are running'.format(existed_threads))
+        for a_thread in working_threads:
+            a_thread.start()
+            print(a_thread.is_alive())
+            time.sleep(randrange(1, 10)/10)
+
+        while active_count() > existed_threads:
+            print('{0} threads are running'.format(active_count()))
+            time.sleep(20)
+        self.assertTrue(all([w.run_pass for w in workers]))
