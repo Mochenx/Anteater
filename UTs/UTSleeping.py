@@ -80,47 +80,6 @@ class UTSleeping(unittest.TestCase):
     #         print('Next Round')
     #     self.assertEqual(20, success_cnt)
 
-    def test_get_sleep_span_0(self):
-        loc_time = self.executor.get_server_time()
-        book_time = loc_time.replace(second=(loc_time.second + 30) % 60,
-                                     minute=loc_time.minute + (loc_time.second + 30) // 60)
-
-        self.assertEqual(0, self.executor.get_sleep_span(book_time, loc_time))
-
-    def test_get_sleep_span_50s_tc0(self):
-        loc_time = self.executor.get_server_time()
-        book_time = loc_time.replace(minute=(loc_time.minute + 1) % 60,
-                                     hour=loc_time.hour + (loc_time.minute + 1) // 60)
-
-        self.assertLessEqual(self.executor.get_sleep_span(book_time, loc_time), 50)
-
-    def test_get_sleep_span_50s_tc1(self):
-        loc_time = self.executor.get_server_time()
-        book_time = loc_time.replace(minute=(loc_time.minute + 3) % 60,
-                                     hour=loc_time.hour + (loc_time.minute + 3) // 60)
-
-        self.assertEqual(50, self.executor.get_sleep_span(book_time, loc_time))
-
-    def test_get_sleep_span_10m_tc0(self):
-        loc_time = self.executor.get_server_time()
-        book_time = loc_time.replace(minute=(loc_time.minute + 10) % 60,
-                                     hour=loc_time.hour + (loc_time.minute + 10) // 60)
-
-        self.assertEqual(50, self.executor.get_sleep_span(book_time, loc_time))
-
-    def test_get_sleep_span_10m_tc1(self):
-        loc_time = self.executor.get_server_time()
-        book_time = loc_time.replace(minute=(loc_time.minute + 15) % 60,
-                                     hour=loc_time.hour + (loc_time.minute + 15) // 60)
-
-        self.assertEqual(600, self.executor.get_sleep_span(book_time, loc_time))
-
-    def test_get_sleep_span_10m_tc2(self):
-        loc_time = self.executor.get_server_time()
-        book_time = loc_time.replace(minute=(loc_time.minute + 11) % 60,
-                                     hour=loc_time.hour + (loc_time.minute + 11) // 60)
-
-        self.assertEqual(50, self.executor.get_sleep_span(book_time, loc_time))
 
     @staticmethod
     def next_n_minutes(local_executor, server_time, func_get_book_minute):
@@ -249,18 +208,3 @@ class UTSleeping(unittest.TestCase):
         http_time = self.executor.get_date_from_http_header(http_resp)
         self.assertEqual('Mon, 15 Dec 2014 17:08:20 GMT', http_time)
 
-    def test_get_server_time(self):
-        httpretty.enable()
-        httpretty.register_uri(httpretty.GET, "http://haijia.bjxueche.net/",
-                               Date='Mon, 15 Dec 2014 16:58:19 GMT')
-        loc_time = self.executor.get_server_time()
-        self.assertEqual(loc_time.day, 16)
-        self.assertEqual(loc_time.hour, 0)
-        self.assertEqual(loc_time.minute, 58)
-        httpretty.register_uri(httpretty.GET, "http://haijia.bjxueche.net/",
-                               Date='Mon, 15 Dec 2014 17:08:20 GMT')
-        loc_time = self.executor.get_server_time()
-        self.assertEqual(loc_time.day, 16)
-        self.assertEqual(loc_time.hour, 1)
-        self.assertEqual(loc_time.minute, 8)
-        httpretty.disable()
