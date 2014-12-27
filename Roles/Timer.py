@@ -6,6 +6,8 @@ import time
 import pytz
 import re
 
+from requests.exceptions import ConnectionError, Timeout
+
 from Roles.Role import RoleCreatorWithLogger, Role, Logger
 
 __author__ = 'mochenx'
@@ -20,32 +22,36 @@ class WaitingTimer(Timer):
 
     def __init__(self, **kwargs):
         super(Timer, self).__init__(**kwargs)
-        self.book_hour = 7
-        self.book_minute = 34
         self.home_page_url = 'http://haijia.bjxueche.net/'
+        self.debut_hour, self.debut_minute = 7, 34  # 7:34 AM
+        self.days_in_advance = 7  #of days
 
     @classmethod
     def create(cls):
-        # cls.new_property('book_date')
         cls.new_property('session')
+        cls.new_property('set_book_date')
         return WaitingTimer()
 
     def load_properties(self, **kwargs):
         if 'session' in kwargs:
             self.session = kwargs['session']
-        else:
+        elif self.session is None:
             raise ValueError('Property session are needed for class Driver')
+        if 'set_book_date' in kwargs:
+            self.set_book_date = kwargs['set_book_date']
 
     def run(self):
         while True:
-            loc_time = self.get_server_time()
+            try:
+                loc_time = self.get_server_time()
+            except (ConnectionError, Timeout) as e:
+                self.debug(msg="{0}".format(str(e)), by='WaitingTimer.run')
+                continue
             book_time = self.get_book_time(loc_time)
 
             sleep_span = self.get_sleep_span(book_time, loc_time)
+            book_date = self.get_book_date(loc_time, book_time)
 
-            the_day_of_do_booking = ((loc_time.day + self.days_in_future) if self.user_set_book_date is None
-                                     else self.user_set_book_date.day)
-            book_date = book_time.replace(day=the_day_of_do_booking)
             print("To book car on {1}, wake up on {0}".format(book_time.strftime('%d %b %X'),
                                                               book_date.strftime('%d %b %X')))
             self.debug(msg="To book car on {1}, wake up on {0}".format(book_time.strftime('%d %b %X'),
@@ -65,18 +71,28 @@ class WaitingTimer(Timer):
         return self.convert_to_local_tz(server_time)
 
     def get_book_time(self, loc_time):
-        if ((loc_time.hour == self.book_hour and loc_time.minute > self.book_minute) or
-                    loc_time.hour >= self.book_hour + 1):
-            if self.user_set_book_date is not None and self.user_set_book_date.day - self.days_in_future > (loc_time.day + 1):
-                book_day = self.user_set_book_date.day - self.days_in_future
-            else:
-                book_day = loc_time.day + 1
+        """
+        """
+        now_is_later_than_debute = lambda: ((loc_time.hour == self.debut_hour and loc_time.minute > self.debut_minute) or
+                                            loc_time.hour >= self.debut_hour + 1)
+        user_wants_later_than = lambda day: (self.set_book_date is not None and
+                                             self.set_book_date - timedelta(days=self.days_in_advance) > day)
+        today = loc_time
+        tomorrow = loc_time + timedelta(days=1)
+        some_days_later = today
+        if self.set_book_date is not None:
+            some_days_later = self.set_book_date - timedelta(self.days_in_advance)
+
+        if now_is_later_than_debute() and user_wants_later_than(tomorrow):
+            book_day = some_days_later
+        elif now_is_later_than_debute():
+            book_day = tomorrow
+        elif user_wants_later_than(today):
+            book_day = some_days_later
         else:
-            if self.user_set_book_date is not None and self.user_set_book_date.day - self.days_in_future > loc_time.day:
-                book_day = self.user_set_book_date.day - self.days_in_future
-            else:
-                book_day = loc_time.day
-        book_time = loc_time.replace(day=book_day, hour=self.book_hour, minute=self.book_minute,
+            book_day = today
+        book_time = loc_time.replace(year=book_day.year, month=book_day.month, day=book_day.day,
+                                     hour=self.debut_hour, minute=self.debut_minute,
                                      second=0, microsecond=0)
         return book_time
 
@@ -96,18 +112,20 @@ class WaitingTimer(Timer):
             sleep_span = 50
         return sleep_span
 
+    def get_book_date(self, loc_time, book_time):
+        the_day_of_do_booking = ((loc_time + timedelta(self.days_in_advance)) if self.set_book_date is None
+                                 else self.set_book_date)
+        book_date = book_time.replace(year=the_day_of_do_booking.year,
+                                      month=the_day_of_do_booking.month,
+                                      day=the_day_of_do_booking.day)
+        return book_date
+
     @staticmethod
     def get_date_from_http_header(headers):
         """
             A function of scanning all items in a header and finding the response time
         """
-        the_date = None
         the_date = headers['Date']
-        # for header in headers:
-        #     mrslt = re.search(r'date\s*:\s*(.*)', header, re.IGNORECASE)
-        #     if mrslt:
-        #         the_date = mrslt.group(1)
-        #         break
         the_date = re.sub(r'\s*[\r\n]', '', the_date)
         return the_date
 

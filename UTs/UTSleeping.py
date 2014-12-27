@@ -81,41 +81,7 @@ class UTSleeping(unittest.TestCase):
     #     self.assertEqual(20, success_cnt)
 
 
-    @staticmethod
-    def next_n_minutes(local_executor, server_time, func_get_book_minute):
-        local_executor.book_hour = server_time.hour + func_get_book_minute(server_time.minute)//60
-        local_executor.book_minute = func_get_book_minute(server_time.minute) % 60
 
-    def to_test_wait_to_book_time_common(self, func_get_book_minute, delay=None):
-        local_executor = SleepingExecutor('1'*18, '0'*10,
-                                          book_date=self.the_day, time_period='Morning')
-        server_time = local_executor.get_server_time()
-        self.next_n_minutes(local_executor, server_time, func_get_book_minute)
-
-        if delay is not None:
-            time.sleep(delay)
-        local_executor.wait_to_book_time()
-        return local_executor, server_time
-
-    def test_wait_to_book_time_tc0(self):
-        local_executor, server_time = self.to_test_wait_to_book_time_common(lambda e: e + 1)
-        wait_end_time = local_executor.get_server_time()
-        self.assertTrue(wait_end_time - server_time < timedelta(seconds=50))
-
-    def test_wait_to_book_time_tc1(self):
-        local_executor, server_time = self.to_test_wait_to_book_time_common(lambda e: e + 1, delay=10)
-        wait_end_time = local_executor.get_server_time()
-        self.assertTrue(wait_end_time - server_time < timedelta(seconds=50))
-
-    def test_wait_to_book_time_tc2(self):
-        local_executor, server_time = self.to_test_wait_to_book_time_common(lambda e: e + 2)
-        wait_end_time = local_executor.get_server_time()
-        self.assertTrue(wait_end_time - server_time > timedelta(minutes=1))
-
-    def test_wait_to_book_time_tc3(self):
-        local_executor, server_time = self.to_test_wait_to_book_time_common(lambda e: e + 4)
-        wait_end_time = local_executor.get_server_time()
-        self.assertGreaterEqual(wait_end_time - server_time, timedelta(minutes=2))
 
     def test_sleep_n_book_on_date_without_booking_right_now(self):
         s_today = datetime.now().strftime('%Y%m%d')
