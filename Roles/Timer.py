@@ -36,7 +36,7 @@ class WaitingTimer(Timer):
         if 'session' in kwargs:
             self.session = kwargs['session']
         elif self.session is None:
-            raise ValueError('Property session are needed for class Driver')
+            raise ValueError('Property session are needed for class Timer')
         if 'set_book_date' in kwargs:
             self.set_book_date = kwargs['set_book_date']
 
