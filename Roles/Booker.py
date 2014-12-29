@@ -82,7 +82,7 @@ class Booker(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         return False
 
     def _get_car_stat_qureies(self, date):
-        periods = self.time_periods if not isinstance(self.time_periods, list) else [self.time_periods]
+        periods = self.time_periods if isinstance(self.time_periods, list) else [self.time_periods]
         get_car_query_args = [ToGetCarsQuery(date=date, time_period=Booker._convert_time_period(time_period),
                                              lesson_type=self.lesson_type)
                               for time_period in periods]
