@@ -21,10 +21,6 @@ class Car(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         cls.new_property('session')
         cls.new_property('lesson_type')
         cls.new_property('car_info')
-
-        # cls.new_property('time_period')
-        # cls.new_property('car_id')
-        # cls.new_property('date')
         return Car()
 
     def load_properties(self, **kwargs):
@@ -32,10 +28,6 @@ class Car(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
             self.session = kwargs['session']
             self.lesson_type = kwargs['lesson_type']
             self.car_info = kwargs['car_info']
-
-            # 'time_period' in kwargs and 'car_id' in kwargs and 'lesson_type' in kwargs):
-            # self.time_period = kwargs['time_period']
-            # self.car_id = kwargs['car_id']
         elif self.session is None:
             raise ValueError('Properties session, date and car_info are needed for class Car')
 
