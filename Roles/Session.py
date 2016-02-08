@@ -1,7 +1,7 @@
 # encoding=utf-8
 
 import requests
-from requests.exceptions import Timeout, RequestException, ConnectionError, HTTPError
+from requests.exceptions import Timeout, RequestException, ConnectionError, HTTPError, ReadTimeout
 from requests.adapters import HTTPAdapter
 import traceback
 from datetime import datetime
@@ -9,6 +9,9 @@ from datetime import datetime
 from Roles.Logger import Logger
 
 __author__ = 'mochenx'
+
+# The URL of document for requests
+# http://docs.python-requests.org/en/latest/
 
 
 class URLsForHJ(object):
@@ -46,7 +49,7 @@ class Session(Logger):
                    by='Connect URL')
         try:
             resp = self._session.get(self.urls['connect'], timeout=self.timeout_parameters['connect'])
-        except (Timeout, RequestException, ConnectionError, HTTPError) as e:
+        except (Timeout, RequestException, ConnectionError, ReadTimeout, HTTPError) as e:
             self.debug(msg=str(e), by='Connect URL')
             self.debug(msg=','.join(line.strip() for line in traceback.format_stack()), by='Connect URL')
             raise e
@@ -62,7 +65,7 @@ class Session(Logger):
             self.debug(msg='Opening {0} at time {1}'.format(url, datetime.now()), by='Open URL')
             resp = self._session.get(url, **kwargs)
             resp_body = resp.content
-        except (Timeout, RequestException, ConnectionError, HTTPError) as e:
+        except (Timeout, RequestException, ConnectionError, ReadTimeout, HTTPError) as e:
             self.debug(msg='Failed to open URL:{0} at time {1}' .format(url, datetime.now()),
                        by='Open URL')
             self.debug(msg=str(e), by='Open URL')
@@ -77,7 +80,7 @@ class Session(Logger):
             self.debug(msg='Opening {0} at time {1}'.format(url, datetime.now()), by='Post')
             resp = self._session.post(url, data, **kwargs)
             resp_body = resp.content
-        except (Timeout, RequestException, ConnectionError, HTTPError) as e:
+        except (Timeout, RequestException, ConnectionError, ReadTimeout, HTTPError) as e:
             self.debug(msg=str(e), by='Post')
             self.debug(msg=','.join(line.strip() for line in traceback.format_stack()), by='Post')
             raise e

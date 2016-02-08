@@ -1,11 +1,16 @@
 # encoding=utf-8
-import cv2
 from io import BytesIO
 import os
 import re
 from PIL import Image
 import numpy as np
 import random
+
+from six import PY3
+if PY3:
+    import opencvpy3.cv2 as cv2
+else:
+    import opencvpy2.cv2 as cv2
 
 __author__ = 'mochenx'
 

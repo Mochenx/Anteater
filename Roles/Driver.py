@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 from lxml import etree
 from io import StringIO
-from six import with_metaclass
+from six import with_metaclass, text_type
 import six.moves.urllib.parse as urlparse
 
 from Roles.Role import RoleCreatorWithLogger, Role, Logger
@@ -18,6 +18,7 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         Driver is the class which takes the charge of login, though "user" would be the proper name usually.
         However, current package is developed for booking drive lessons, Driver is a better name.
     """
+
     def __init__(self, **kwargs):
         super(Driver, self).__init__(**kwargs)
 
@@ -81,7 +82,7 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 
     @staticmethod
     def _is_captcha_error(resp_body):
-        re_captcha_error = re.compile(unicode(u"验证码错误了"), re.U)
+        re_captcha_error = re.compile(text_type(u"验证码错误了"), re.U)
         tree = etree.parse(StringIO(resp_body.decode(encoding='utf-8')), etree.HTMLParser())
 
         # Iterates all <input> tags

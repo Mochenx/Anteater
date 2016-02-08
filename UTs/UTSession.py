@@ -5,7 +5,7 @@ import httpretty
 import socket
 import time
 from Roles.Session import Session, URLsForHJ
-from requests.exceptions import Timeout, RequestException, ConnectionError, HTTPError
+from requests.exceptions import Timeout, RequestException, ConnectionError, ReadTimeout, HTTPError
 from threading import Thread, active_count
 from random import randrange
 
@@ -63,7 +63,7 @@ class UTSession(unittest.TestCase):
             self.assertTrue(False)
 
     def _do_failed(self, do_func):
-        self.assertRaises(ConnectionError, do_func)
+        self.assertRaises(ConnectionError or ReadTimeout, do_func)
 
     @httpretty.activate
     def _do_with_retry(self, do_func, func_check_request=None):
@@ -123,8 +123,8 @@ class UTSession(unittest.TestCase):
     def test_connect_success(self):
         def _connect():
             resp = self.dut.connect()
-            print(resp.content)
-            return resp.content
+            print(resp.text)
+            return resp.text
         self._do_success(_connect)
 
     def test_connect_connection_failed(self):
@@ -134,8 +134,8 @@ class UTSession(unittest.TestCase):
     def test_connect_with_retry(self):
         def _test_connect():
             resp = self.dut.connect()
-            print(resp.content)
-            return resp.content
+            print(resp.text)
+            return resp.text
         self._do_with_retry(_test_connect)
 
     def test_connect_retried_but_failed(self):
@@ -155,7 +155,7 @@ class UTSession(unittest.TestCase):
     def test_open_url_n_read_success(self):
         def _test():
             resp, body = self.dut.open_url_n_read('http://haijia.bjxueche.net/')
-            return body
+            return resp.text
         self._do_success(_test)
 
     def test_open_url_n_read_failed(self):
@@ -173,7 +173,7 @@ class UTSession(unittest.TestCase):
     def test_open_url_n_read_retry_but_failed(self):
         def _test():
             resp, body = self.dut.open_url_n_read('http://haijia.bjxueche.net/')
-            return body
+            return resp.text
         self._do_retried_but_failed(_test)
 
     def test_open_url_n_read_timeout_failed(self):
@@ -181,17 +181,17 @@ class UTSession(unittest.TestCase):
 
         def _test():
             resp, body = self.dut.open_url_n_read('http://haijia.bjxueche.net:81/')
-            return body
+            return resp.text
 
         def _test_with_timeout_args():
             resp, body = self.dut.open_url_n_read('http://haijia.bjxueche.net:81/', timeout=7)
-            return body
+            return resp.text
         self._do_timeout_failed(_test, self.dut.timeout_parameters['open_url_n_read']+1)
         self._do_timeout_failed(_test_with_timeout_args, 8)
 
-
     def test_open_url_n_read_multi_timeout_failed(self):
         self.dut.timeout_parameters['open_url_n_read'] = 2
+
         def _test():
             resp, body = self.dut.open_url_n_read('http://haijia.bjxueche.net:81/')
             return body
