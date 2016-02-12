@@ -43,25 +43,26 @@ class WaitingTimer(Timer):
     def run(self):
         while True:
             try:
-                loc_time = self.get_server_time()
+                book_date, debut_time, loc_time = self.calc_date()
             except (ConnectionError, Timeout) as e:
                 self.debug(msg="{0}".format(str(e)), by='WaitingTimer.run')
                 continue
-            book_time = self.get_book_time(loc_time)
+            sleep_span = self.get_sleep_span(debut_time, loc_time)
 
-            sleep_span = self.get_sleep_span(book_time, loc_time)
-            book_date = self.get_book_date(loc_time, book_time)
-
-            print("To book car on {1}, wake up on {0}".format(book_time.strftime('%d %b %X'),
-                                                              book_date.strftime('%d %b %X')))
-            self.debug(msg="To book car on {1}, wake up on {0}".format(book_time.strftime('%d %b %X'),
+            self.debug(msg="To book car on {1}, wake up on {0}".format(debut_time.strftime('%d %b %X'),
                                                                        book_date.strftime('%d %b %X')),
                        by='wait_to_book_time')
             if sleep_span == 0:
                 return book_date.strftime('%Y%m%d')
             time.sleep(sleep_span)
             self.debug(msg="Wake up & check time again", by='wait_to_book_time')
-            print("Wake up & check time again at {0}".format(book_time.strftime('%d %b %X')))
+            print("Wake up & check time again at {0}".format(debut_time.strftime('%d %b %X')))
+
+    def calc_date(self):
+        loc_time = self.get_server_time()
+        debut_time = self.get_debut_time(loc_time)
+        book_date = self.get_book_date(loc_time, debut_time)
+        return book_date, debut_time, loc_time
 
     def get_server_time(self):
         resp, _ = self.session.open_url_n_read(url=self.home_page_url, timeout=20)
@@ -70,10 +71,10 @@ class WaitingTimer(Timer):
         server_time = datetime.strptime(time_from_http_server, '%a, %d %b %Y %X %Z')
         return self.convert_to_local_tz(server_time)
 
-    def get_book_time(self, loc_time):
+    def get_debut_time(self, loc_time):
         """
         """
-        now_is_later_than_debute = lambda: ((loc_time.hour == self.debut_hour and loc_time.minute > self.debut_minute) or
+        now_is_later_than_debut = lambda: ((loc_time.hour == self.debut_hour and loc_time.minute > self.debut_minute) or
                                             loc_time.hour >= self.debut_hour + 1)
         user_wants_later_than = lambda day: (self.set_book_date is not None and
                                              self.set_book_date - timedelta(days=self.days_in_advance) > day)
@@ -83,18 +84,18 @@ class WaitingTimer(Timer):
         if self.set_book_date is not None:
             some_days_later = self.set_book_date - timedelta(self.days_in_advance)
 
-        if now_is_later_than_debute() and user_wants_later_than(tomorrow):
+        if now_is_later_than_debut() and user_wants_later_than(tomorrow):
             book_day = some_days_later
-        elif now_is_later_than_debute():
+        elif now_is_later_than_debut():
             book_day = tomorrow
         elif user_wants_later_than(today):
             book_day = some_days_later
         else:
             book_day = today
-        book_time = loc_time.replace(year=book_day.year, month=book_day.month, day=book_day.day,
-                                     hour=self.debut_hour, minute=self.debut_minute,
-                                     second=0, microsecond=0)
-        return book_time
+        debut_time = loc_time.replace(year=book_day.year, month=book_day.month, day=book_day.day,
+                                      hour=self.debut_hour, minute=self.debut_minute,
+                                      second=0, microsecond=0)
+        return debut_time
 
     def get_sleep_span(self, book_time, loc_time):
         if book_time - loc_time <= timedelta(minutes=1):
@@ -140,3 +141,8 @@ class WaitingTimer(Timer):
         self.debug(msg=loc_time.strftime('%d %b %X'), by='get_server_time')
         return loc_time
 
+    def __str__(self):
+        book_date, debut_time, _ = self.calc_date()
+
+        return "WaitingTimer: {0} => {1}".format(debut_time.strftime('%d %b %X'),
+                                                 book_date.strftime('%d %b %X'))

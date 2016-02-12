@@ -5,6 +5,7 @@ from datetime import datetime
 from six import with_metaclass
 from Roles.Role import RoleCreatorWithLogger, Role, Logger
 from Roles.Driver import LoginAgain
+from Roles.Session import Session
 
 __author__ = 'mochenx'
 
@@ -37,7 +38,8 @@ class WaitToTimeTask(Task):
     """
     def __init__(self, **kwargs):
         super(WaitToTimeTask, self).__init__(**kwargs)
-        self.session = Role.get('Session')
+        # self.session = Role.get('Session')
+        self.session = Session()
         self.cars = None
 
     @classmethod
@@ -106,3 +108,10 @@ class WaitToTimeTask(Task):
             except LoginAgain:
                 continue
         return True
+
+    def __str__(self):
+        task_description = 'WaitToTimeTask:\n'
+        task_description += str(self.timer) + '\n'
+        task_description += str(self.driver) + '\n'
+        task_description += str(self.booker)
+        return task_description

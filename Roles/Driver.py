@@ -100,6 +100,9 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         self.debug(msg='{0} at time {1}'.format(net_text_url, datetime.now()), by='get_net_text')
         _, resp = self.session.open_url_n_read(url=net_text_url)
 
+    def __str__(self):
+        return 'Driver: {0}'.format(self.drivername)
+
 
 class LoginAgain(BaseException):
     pass

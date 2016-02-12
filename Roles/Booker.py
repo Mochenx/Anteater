@@ -119,6 +119,9 @@ class Booker(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
                              'instead of {0}'.format(time_period))
         return time_period_in_server_fmt
 
+    def __str__(self):
+        return 'Booker: lession-{0} at {1}'.format(self.lesson_type, self.time_periods)
+
 
 class ToGetCarsQuery(dict):
     def __init__(self, date, time_period, lesson_type):
