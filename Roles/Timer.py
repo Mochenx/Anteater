@@ -14,6 +14,22 @@ __author__ = 'mochenx'
 
 
 class Timer(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
+    supported_date_formats = ['%Y%m%d', '%Y-%m-%d', '%b %d %Y']
+
+    @staticmethod
+    def localize_date(date_str):
+        fmt_success = False
+        for fmt in Timer.supported_date_formats:
+            try:
+                naive_date = datetime.strptime(date_str, fmt)
+                fmt_success = True
+            except ValueError:
+                continue
+        if not fmt_success:
+            raise ValueError('{0} is not a supported format'.format(date_str))
+        tz_beijing = pytz.timezone('Asia/Shanghai')
+        return tz_beijing.localize(naive_date)
+
     def run(self):
         raise NotImplementedError('Method run must be implemented in sub class of Timer')
 
@@ -140,6 +156,7 @@ class WaitingTimer(Timer):
         loc_time = server_time.astimezone(tz_beijing)
         self.debug(msg=loc_time.strftime('%d %b %X'), by='get_server_time')
         return loc_time
+
 
     def __str__(self):
         book_date, debut_time, _ = self.calc_date()

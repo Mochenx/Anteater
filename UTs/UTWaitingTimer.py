@@ -65,6 +65,13 @@ class UTWaitingTimer(unittest.TestCase):
         self.assertEqual('2014-12-26 22:59:41+08:00', str(loc_time))
         self.assertEqual(self.retry_cnt, 9)
 
+    def test_localize_date(self):
+        fmt01 = self.dut.localize_date('Jan 01 2017')
+        fmt02 = self.dut.localize_date('2017-01-01')
+        fmt03 = self.dut.localize_date('20170101')
+        self.assertEquals(fmt01, fmt02)
+        self.assertEquals(fmt02, fmt03)
+
     def test_get_server_time_timeout_after_retry(self):
         self.dut.home_page_url = 'http://haijia.bjxueche.net:81/'
         self.session.set_max_retry(for_url='http://haijia.bjxueche.net:81/', max_retries=5)
@@ -87,7 +94,7 @@ class UTWaitingTimer(unittest.TestCase):
         """
         loc_time = datetime.now()
         self.offset_n_minutes(loc_time, func_get_offset_minute=lambda e: e + 3)
-        book_time = self.dut.get_book_time(loc_time)
+        book_time = self.dut.get_debut_time(loc_time)
         self.assertEqual(book_time.day, loc_time.day)
         self.assertEqual(book_time.hour, self.dut.debut_hour)
         self.assertEqual(book_time.minute, self.dut.debut_minute)
@@ -100,7 +107,7 @@ class UTWaitingTimer(unittest.TestCase):
         loc_time = datetime.now()
         self.offset_n_minutes(loc_time, func_get_offset_minute=lambda e: e + 3)
         self.dut.set_book_date = loc_time + seven_days
-        book_time = self.dut.get_book_time(loc_time)
+        book_time = self.dut.get_debut_time(loc_time)
         self.assertEqual(book_time.day, loc_time.day)
         self.assertEqual(book_time.hour, self.dut.debut_hour)
         self.assertEqual(book_time.minute, self.dut.debut_minute)
@@ -115,7 +122,7 @@ class UTWaitingTimer(unittest.TestCase):
             loc_time = datetime.now()
             self.offset_n_minutes(loc_time, func_get_offset_minute=lambda e: e + 3)
             self.dut.set_book_date = loc_time + eight_days
-            book_time = self.dut.get_book_time(loc_time)
+            book_time = self.dut.get_debut_time(loc_time)
             wake_up_date = loc_time + timedelta(days=1+i)
             self.assertEqual(book_time.day, wake_up_date.day)
             self.assertEqual(book_time.hour, self.dut.debut_hour)
@@ -128,7 +135,7 @@ class UTWaitingTimer(unittest.TestCase):
         """
         loc_time = datetime.now()
         self.offset_n_minutes(loc_time, func_get_offset_minute=lambda e: e - 3)
-        book_time = self.dut.get_book_time(loc_time)
+        book_time = self.dut.get_debut_time(loc_time)
         print('Wake up at {0}'.format(str(book_time)))
         wake_up_date = loc_time + timedelta(days=1)
         self.assertEqual(book_time.day, wake_up_date.day)
@@ -145,7 +152,7 @@ class UTWaitingTimer(unittest.TestCase):
             self.offset_n_minutes(loc_time, func_get_offset_minute=lambda e: e - 3)
             self.dut.set_book_date = loc_time + _7_8_days
             print('Round {0}: want {1} in {2}'.format(i, str(self.dut.set_book_date), str(_7_8_days)))
-            book_time = self.dut.get_book_time(loc_time)
+            book_time = self.dut.get_debut_time(loc_time)
             print('Wake up at {0}'.format(str(book_time)))
             wake_up_date = loc_time + timedelta(days=1)
             self.assertEqual(book_time.day, wake_up_date.day)
@@ -162,7 +169,7 @@ class UTWaitingTimer(unittest.TestCase):
             self.offset_n_minutes(loc_time, func_get_offset_minute=lambda e: e - 3)
             self.dut.set_book_date = loc_time + _7_8_days
             print('Round {0}: want {1} in {2}'.format(i, str(self.dut.set_book_date), str(_7_8_days)))
-            book_time = self.dut.get_book_time(loc_time)
+            book_time = self.dut.get_debut_time(loc_time)
             print('Wake up at {0}'.format(str(book_time)))
             wake_up_date = loc_time + timedelta(days=2+i)
             self.assertEqual(book_time.day, wake_up_date.day)
