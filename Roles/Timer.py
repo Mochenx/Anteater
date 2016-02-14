@@ -54,7 +54,8 @@ class WaitingTimer(Timer):
         elif self.session is None:
             raise ValueError('Property session are needed for class Timer')
         if 'set_book_date' in kwargs:
-            self.set_book_date = kwargs['set_book_date']
+            # TODO: How to deal with the raised exception
+            self.set_book_date = self.localize_date(kwargs['set_book_date'])
 
     def run(self):
         while True:
