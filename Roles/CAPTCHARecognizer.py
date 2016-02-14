@@ -24,7 +24,10 @@ class CAPTCHAError(BaseException):
 
 
 class CAPTCHARecognizer(object):
-    ocr_exe_path = os.path.join(os.path.abspath(os.curdir), 'Tesseract-OCR/tesseract.exe')
+    # Mac OS & Linux
+    ocr_exe_path = 'tesseract'
+    # Windows
+    # ocr_exe_path = os.path.join(os.path.abspath(os.curdir), 'Tesseract-OCR/tesseract.exe')
 
     def __init__(self, session, prefix_fname=None):
         self.session = session
