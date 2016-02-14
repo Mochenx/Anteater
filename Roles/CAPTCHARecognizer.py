@@ -24,6 +24,8 @@ class CAPTCHAError(BaseException):
 
 
 class CAPTCHARecognizer(object):
+    ocr_exe_path = os.path.join(os.path.abspath(os.curdir), 'Tesseract-OCR/tesseract.exe')
+
     def __init__(self, session, prefix_fname=None):
         self.session = session
         if not isinstance(prefix_fname, str):
@@ -36,22 +38,26 @@ class CAPTCHARecognizer(object):
         return self.validate_captcha()
 
     def get_n_recognize_captcha(self):
+        image_byt = self.download_captcha()
+        img_login_captcha_cv = self.get_opencv_img_from_gif(image_byt)
+        return self.recognize_captcha(img_login_captcha_cv)
+
+    def download_captcha(self):
         rand_num_for_server = float(random.randrange(1, 100))/999
 
         url_captcha_login = 'http://haijia.bjxueche.net/tools/CreateCode.ashx?key=ImgCode&amp;' \
                             'random={0}'.format(rand_num_for_server)
         _, image_byt = self.session.open_url_n_read(url=url_captcha_login)
-        # if save_html:
-        #     with open('captcha.jpg', 'wb') as h:
-        #         h.write(image_byt)
+        return image_byt
 
-        img_login_captcha_cv = self.get_opencv_img_from_gif(image_byt)
+    def recognize_captcha(self, img_login_captcha_cv):
         img_only_channel_v = self.sel_v_with_threshold(img_login_captcha_cv)
-        cv2.imwrite(self.ocr_jpg_name + '.jpg', img_only_channel_v)
+        scaled_img = cv2.resize(img_only_channel_v, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
 
-        ocr_exe_path = os.path.join(os.path.abspath(os.curdir), 'Tesseract-OCR/tesseract.exe')
-        print(ocr_exe_path)
-        os.system("{0} {1} {2}".format(ocr_exe_path, self.ocr_jpg_name + '.jpg', self.ocr_txt_name))
+        cv2.imwrite(self.ocr_jpg_name + '.jpg', scaled_img)
+
+        print(self.ocr_exe_path)
+        os.system("{0} {1} {2}".format(self.ocr_exe_path, self.ocr_jpg_name + '.jpg', self.ocr_txt_name))
 
         return self.ocr_txt_name + '.txt'
 
