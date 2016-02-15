@@ -19,6 +19,8 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         However, current package is developed for booking drive lessons, Driver is a better name.
     """
 
+    login_repeat_times = 10
+
     def __init__(self, **kwargs):
         super(Driver, self).__init__(**kwargs)
 
@@ -42,20 +44,21 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         """
         CAPTCHA_rdr = CAPTCHARecognizer(self.session, prefix_fname=self.drivername)
 
-        for i in range(10):
+        for i in range(self.login_repeat_times):
             try:
                 login_post_data = self._get_login_form()
                 captcha = CAPTCHA_rdr.get_captcha()
                 self.debug(msg='CAPTCHA:{0}'.format(captcha), by='Login')
                 login_post_data.load_captcha(captcha)
-                self._post_login_form(login_post_data.urlencode(), True)
+                self._post_login_form(login_post_data.urlencode())
             except CAPTCHAError as e:
                 self.debug(msg='CAPTCHA recognition error:{0}'.format(str(e)), by='Login')
                 self._get_net_text()
                 continue
             except Exception as e:
-                raise LoginAgain(str(e))
-            break
+                raise LoginAgain(str(e), logger=self)
+            return
+        raise LoginFail()
 
     def _get_login_form(self):
         home_page_url = 'http://haijia.bjxueche.net/'
@@ -105,6 +108,13 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 
 
 class LoginAgain(BaseException):
+    def __init__(self, *args, **kwargs):
+        if 'logger' in kwargs.keys():
+            logger = kwargs['logger']
+            logger.debug(msg='Unknown Exception in login:\n{0}'.format(args[0]), by='Login')
+
+
+class LoginFail(BaseException):
     pass
 
 

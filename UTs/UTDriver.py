@@ -3,9 +3,10 @@
 import unittest
 import httpretty
 
-from Roles.Driver import LoginForm, Driver, LoginAgain
+from Roles.Driver import LoginForm, Driver, LoginAgain, LoginFail
 from Roles.Role import Role
 from Roles.Session import Session
+from Roles.CAPTCHARecognizer import CAPTCHAError
 
 __author__ = 'mochenx'
 
@@ -64,4 +65,24 @@ class UTDriver(unittest.TestCase):
         self.assertEqual(login_form['txtIMGCode'], None)
         self.assertEqual(login_form['rcode'], None)
 
+    def test_login_again(self):
+        def monkey_patch_get_login_form():
+            raise TypeError('monkey_patch_get_login_form')
+        setattr(self.driver, '_get_login_form', monkey_patch_get_login_form)
+        self.assertRaises(LoginAgain, self.driver.login)
 
+    def test_login_retry(self):
+        self.retry_cnt = 0
+        expect_retry_num = 11
+        Driver.login_repeat_times = expect_retry_num
+
+        def monkey_patch_get_net_text():
+            self.retry_cnt += 1
+
+        def monkey_patch_get_login_form():
+            raise CAPTCHAError('monkey_patch_get_login_form')
+
+        setattr(self.driver, '_get_login_form', monkey_patch_get_login_form)
+        setattr(self.driver, '_get_net_text', monkey_patch_get_net_text)
+        self.assertRaises(LoginFail, self.driver.login)
+        self.assertEquals(expect_retry_num, self.retry_cnt)
