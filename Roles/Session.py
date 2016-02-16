@@ -17,6 +17,7 @@ __author__ = 'mochenx'
 class URLsForHJ(object):
     connect = 'http://haijia.bjxueche.net'
     login_url = 'http://haijia.bjxueche.net/'
+    net_text_url = r'http://haijia.bjxueche.net/Login.aspx/GetNetText'
     get_cars = 'http://haijia.bjxueche.net/Han/ServiceBooking.asmx/GetCars?'
     book_car = 'http://haijia.bjxueche.net/Han/ServiceBooking.asmx/BookingCar?'
     booking_rslt_url = 'http://haijia.bjxueche.net/NetBooking.aspx'

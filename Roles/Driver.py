@@ -104,10 +104,8 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
             raise CAPTCHAError('CAPTCHAError found after post')
 
     def _get_net_text(self):
-        net_text_url = r'http://haijia.bjxueche.net/Login.aspx/GetNetText'
-
-        self.debug(msg='{0} at time {1}'.format(net_text_url, datetime.now()), by='get_net_text')
-        resp, _ = self.session.post_with_response(url=net_text_url, data=bytes(''),
+        self.debug(msg='{0} at time {1}'.format(URLsForHJ.net_text_url, datetime.now()), by='get_net_text')
+        resp, _ = self.session.post_with_response(url=URLsForHJ.net_text_url, data=bytes(''),
                                                   headers={'accept': 'application/json',
                                                            'content-type': 'application/json'})
         return resp
