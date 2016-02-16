@@ -65,8 +65,8 @@ class WaitToTimeTask(Task):
         return role
 
     def run(self):
-        date = self.timer.run()
-        self._driver_login(date)
+        book_date = self.timer.run()
+        self._driver_login(book_date)
 
         self.debug(msg="Login done at {0}".format(datetime.now()), by='WaitToTimeTask.run')
         print("Login done at {0}".format(datetime.now()))
@@ -76,11 +76,11 @@ class WaitToTimeTask(Task):
                 if self.start_to_book_cars():
                     return
 
-                self.cars = self.booker.get_cars(date)
+                self.cars = self.booker.get_cars(book_date)
                 try_cnt += 1
                 if try_cnt == 50:
                     return
-                elif try_cnt > 0 and try_cnt % 10 == 0 and self.booker.get_booking_status(date):
+                elif try_cnt > 0 and try_cnt % 10 == 0 and self.booker.get_booking_status(book_date):
                     return
             except LoginAgain:
                 print("Exception occurs, try to login again")
@@ -99,7 +99,7 @@ class WaitToTimeTask(Task):
                 try:
                     # We try to get car infomation is to make sure it has logged in successfully
                     self.cars = self.booker.get_cars(date)
-                except Exception:
+                except Exception as e:
                     self.debug(msg="Raise LoginAgain for the reason that "
                                    "something wrong in get_cars at time: {0}".format(datetime.now()),
                                by='WaitToTimeTask.login')
