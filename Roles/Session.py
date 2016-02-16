@@ -16,6 +16,7 @@ __author__ = 'mochenx'
 
 class URLsForHJ(object):
     connect = 'http://haijia.bjxueche.net'
+    login_url = 'http://haijia.bjxueche.net/'
     get_cars = 'http://haijia.bjxueche.net/Han/ServiceBooking.asmx/GetCars?'
     book_car = 'http://haijia.bjxueche.net/Han/ServiceBooking.asmx/BookingCar?'
     booking_rslt_url = 'http://haijia.bjxueche.net/NetBooking.aspx'
@@ -80,6 +81,7 @@ class Session(Logger):
             self.debug(msg='Opening {0} at time {1}'.format(url, datetime.now()), by='Post')
             resp = self._session.post(url, data, **kwargs)
             resp_body = resp.content
+            self.debug(msg='Status {0} at time {1}'.format(resp.status_code, datetime.now()), by='Post')
         except (Timeout, RequestException, ConnectionError, ReadTimeout, HTTPError) as e:
             self.debug(msg=str(e), by='Post')
             self.debug(msg=','.join(line.strip() for line in traceback.format_stack()), by='Post')
