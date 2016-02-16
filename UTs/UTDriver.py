@@ -86,3 +86,16 @@ class UTDriver(unittest.TestCase):
         setattr(self.driver, '_get_net_text', monkey_patch_get_net_text)
         self.assertRaises(LoginFail, self.driver.login)
         self.assertEquals(expect_retry_num, self.retry_cnt)
+
+    def test_login(self):
+        self.shared_session.set_max_retry(for_url='http://haijia.bjxueche.net/', max_retries=5)
+        # utdriver_login.txt should contain the following format:
+        # username
+        # password
+        with open('Private files/utdriver_login.txt', 'r') as f:
+            s_file = f.read()
+            s_lst = s_file.split('\n')
+        print(s_lst)
+        self.driver.load_properties(drivername=s_lst[0], password=s_lst[1], session=self.shared_session)
+        self.assertTrue(self.driver.login())
+

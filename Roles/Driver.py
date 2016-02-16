@@ -50,14 +50,14 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
                 captcha = CAPTCHA_rdr.get_captcha()
                 self.debug(msg='CAPTCHA:{0}'.format(captcha), by='Login')
                 login_post_data.load_captcha(captcha)
-                self._post_login_form(login_post_data.urlencode())
+                self._post_login_form(login_post_data)
             except CAPTCHAError as e:
                 self.debug(msg='CAPTCHA recognition error:{0}'.format(str(e)), by='Login')
                 self._get_net_text()
                 continue
             except Exception as e:
                 raise LoginAgain(str(e), logger=self)
-            return
+            return True
         raise LoginFail()
 
     def _get_login_form(self):
@@ -72,12 +72,14 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 
         return login_post_data
 
-    def _post_login_form(self, data_being_posted):
+    def _post_login_form(self, login_post_data):
+        data_being_posted = login_post_data.urlencode()
         login_url = 'http://haijia.bjxueche.net/'
 
         self.debug(msg='{0} at time {1}'.format(data_being_posted, datetime.now()),
                    by='post_login_data')
-        resp, body = self.session.post_with_response(url=login_url, data=bytes(data_being_posted), timeout=5)
+        resp, body = self.session.post_with_response(url=login_url,
+                                                     data=data_being_posted.encode(encoding='utf-8'), timeout=5)
 
         self._is_captcha_error(body)
         self.debug(msg='Post login data done at time {0}'.format(datetime.now()),
@@ -86,6 +88,8 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
     @staticmethod
     def _is_captcha_error(resp_body):
         re_captcha_error = re.compile(text_type(u"验证码错误了"), re.U)
+        with open('post_resp.html', 'w') as f:
+            f.write(resp_body.decode(encoding='utf-8'))
         tree = etree.parse(StringIO(resp_body.decode(encoding='utf-8')), etree.HTMLParser())
 
         # Iterates all <input> tags
