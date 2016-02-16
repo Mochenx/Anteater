@@ -85,10 +85,9 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         self.debug(msg='Post login data done at time {0}'.format(datetime.now()),
                    by='post_login_data')
 
-    @staticmethod
-    def _is_captcha_error(resp_body):
+    def _is_captcha_error(self, resp_body):
         re_captcha_error = re.compile(text_type(u"验证码错误了"), re.U)
-        with open('post_resp.html', 'w') as f:
+        with open('{0}.post_resp.html'.format(self.drivername), 'w') as f:
             f.write(resp_body.decode(encoding='utf-8'))
         tree = etree.parse(StringIO(resp_body.decode(encoding='utf-8')), etree.HTMLParser())
 
