@@ -78,7 +78,7 @@ class WaitingTimer(Timer):
     def calc_date(self):
         loc_time = self.get_server_time()
         debut_time = self.get_debut_time(loc_time)
-        book_date = self.get_book_date(loc_time, debut_time)
+        book_date = self.get_book_date(debut_time)
         return book_date, debut_time, loc_time
 
     def get_server_time(self):
@@ -130,12 +130,12 @@ class WaitingTimer(Timer):
             sleep_span = 50
         return sleep_span
 
-    def get_book_date(self, loc_time, book_time):
-        the_day_of_do_booking = ((loc_time + timedelta(self.days_in_advance)) if self.set_book_date is None
+    def get_book_date(self, debut_time):
+        the_day_of_do_booking = ((debut_time + timedelta(self.days_in_advance)) if self.set_book_date is None
                                  else self.set_book_date)
-        book_date = book_time.replace(year=the_day_of_do_booking.year,
-                                      month=the_day_of_do_booking.month,
-                                      day=the_day_of_do_booking.day)
+        book_date = debut_time.replace(year=the_day_of_do_booking.year,
+                                       month=the_day_of_do_booking.month,
+                                       day=the_day_of_do_booking.day)
         return book_date
 
     @staticmethod
@@ -157,7 +157,6 @@ class WaitingTimer(Timer):
         loc_time = server_time.astimezone(tz_beijing)
         self.debug(msg=loc_time.strftime('%d %b %X'), by='get_server_time')
         return loc_time
-
 
     def __str__(self):
         book_date, debut_time, _ = self.calc_date()

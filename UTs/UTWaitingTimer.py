@@ -221,7 +221,7 @@ class UTWaitingTimer(unittest.TestCase):
     def test_get_book_date_auto(self):
         _7_days = timedelta(days=7)
         loc_time = datetime.now()
-        book_date = self.dut.get_book_date(loc_time, loc_time)
+        book_date = self.dut.get_book_date(loc_time)
         expt_date = loc_time + _7_days
         self.assertEqual(expt_date.year, book_date.year)
         self.assertEqual(expt_date.month, book_date.month)
@@ -233,7 +233,7 @@ class UTWaitingTimer(unittest.TestCase):
         self.offset_n_minutes(loc_time, func_get_offset_minute=lambda e: e - 3)
         expt_date = loc_time + _9_days
         self.dut.set_book_date = expt_date
-        book_date = self.dut.get_book_date(loc_time, loc_time)
+        book_date = self.dut.get_book_date(loc_time)
         self.assertEqual(expt_date.year, book_date.year)
         self.assertEqual(expt_date.month, book_date.month)
         self.assertEqual(expt_date.day, book_date.day)
