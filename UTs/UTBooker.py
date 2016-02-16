@@ -83,7 +83,7 @@ class UTBooker(unittest.TestCase):
         all_expt_str = []
         for expt_time_period in expt_time_periods:
             expt_str = 'http://haijia.bjxueche.net/Han/ServiceBooking.asmx/GetCars?' \
-                       'yyrq={0}&pageNum=1&pageSize=40&xllxID=1&yysd={1}'.format(date, expt_time_period)
+                       'pageNum=1&pageSize=40&xllxID=1&yyrq={0}&yysd={1}'.format(date, expt_time_period)
             all_expt_str.append(expt_str)
         obsv_urls = sorted(self.dut._get_car_stat_qureies(date))
         self.assertEqual(sorted(all_expt_str), obsv_urls)

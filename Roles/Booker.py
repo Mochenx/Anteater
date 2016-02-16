@@ -3,7 +3,7 @@
 import re
 import json
 from lxml import etree
-from six import with_metaclass
+from six import with_metaclass, PY3
 import six.moves.urllib.parse as urlparse
 from datetime import datetime
 from io import StringIO
@@ -42,9 +42,9 @@ class Booker(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         for query in get_car_service_queries:
             self.debug(msg=query, by='get_cars')
 
-            _, resp_body = self.session.open_url_n_read(url=query, timeout=5)
+            resp, resp_body = self.session.open_url_n_read(url=query, timeout=5)
 
-            self.debug(msg='Query Cars response: {0} at time {1}'.format(unicode(resp_body), datetime.now()),
+            self.debug(msg=u'Query Cars response: {0} at time {1}'.format(resp.text, datetime.now()),
                        by='get_cars')
             # Get car information form response
             car_info = self._parse_car_info_json(resp_body)
@@ -101,7 +101,10 @@ class Booker(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 
     @staticmethod
     def _parse_car_info_json(resp_body):
-        tree = etree.fromstring(resp_body)
+        if PY3:
+            tree = etree.fromstring(resp_body.encode('utf-8'))
+        else:
+            tree = etree.fromstring(resp_body)
         car_info_in_json = re.sub(r'\]_+.*', r']', tree.text)
         car_info = json.loads(car_info_in_json)
         return car_info
@@ -133,5 +136,5 @@ class ToGetCarsQuery(dict):
         self.get_car_service_url = URLsForHJ.get_cars
 
     def __str__(self):
-        encoded_get_car_query_args = urlparse.urlencode([(k, v) for k, v in self.items()])
+        encoded_get_car_query_args = urlparse.urlencode([(k, v) for k, v in sorted(self.items())])
         return self.get_car_service_url + encoded_get_car_query_args
