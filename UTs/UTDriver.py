@@ -59,11 +59,9 @@ class UTDriver(unittest.TestCase):
         self.assertTrue('txtUserName' in login_form)
         self.assertTrue('txtPassword' in login_form)
         self.assertTrue('txtIMGCode' in login_form)
-        self.assertTrue('rcode' in login_form)
         self.assertEqual(login_form['txtUserName'], 'John Smith')
         self.assertEqual(login_form['txtPassword'], '8'*6)
         self.assertEqual(login_form['txtIMGCode'], None)
-        self.assertEqual(login_form['rcode'], None)
 
     def test_login_again(self):
         def monkey_patch_get_login_form():

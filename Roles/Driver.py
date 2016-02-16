@@ -6,9 +6,11 @@ from lxml import etree
 from io import StringIO
 from six import with_metaclass, text_type
 import six.moves.urllib.parse as urlparse
+from codecs import open
 
 from Roles.Role import RoleCreatorWithLogger, Role, Logger
 from Roles.CAPTCHARecognizer import CAPTCHAError, CAPTCHARecognizer
+from Roles.Session import URLsForHJ
 
 __author__ = 'mochenx'
 
@@ -47,6 +49,7 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         for i in range(self.login_repeat_times):
             try:
                 login_post_data = self._get_login_form()
+                self._get_net_text()
                 captcha = CAPTCHA_rdr.get_captcha()
                 self.debug(msg='CAPTCHA:{0}'.format(captcha), by='Login')
                 login_post_data.load_captcha(captcha)
@@ -61,35 +64,35 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         raise LoginFail()
 
     def _get_login_form(self):
-        home_page_url = 'http://haijia.bjxueche.net/'
+        home_page_url = URLsForHJ.connect
 
         self.debug(msg='{0} at time {1}'.format(home_page_url, datetime.now()), by='get_form')
-        _, resp_body = self.session.open_url_n_read(url=home_page_url)
+        resp, _ = self.session.open_url_n_read(url=home_page_url)
 
         login_post_data = LoginForm(self.drivername, self.password)
         # body is a UTF-8 encoded bytes-type variable, so decode it firstly
-        login_post_data.load_form_with_parsed_html(resp_body)
+        login_post_data.load_form_with_parsed_html(resp.text)
 
         return login_post_data
 
     def _post_login_form(self, login_post_data):
         data_being_posted = login_post_data.urlencode()
-        login_url = 'http://haijia.bjxueche.net/'
 
         self.debug(msg='{0} at time {1}'.format(data_being_posted, datetime.now()),
                    by='post_login_data')
-        resp, body = self.session.post_with_response(url=login_url,
-                                                     data=data_being_posted.encode(encoding='utf-8'), timeout=5)
+        resp, body = self.session.post_with_response(url=URLsForHJ.login_url,
+                                                     data=bytes(data_being_posted), timeout=5,
+                                                     headers={'content-type': 'application/x-www-form-urlencoded'})
 
-        self._is_captcha_error(body)
+        self._is_captcha_error(resp)
         self.debug(msg='Post login data done at time {0}'.format(datetime.now()),
                    by='post_login_data')
 
-    def _is_captcha_error(self, resp_body):
+    def _is_captcha_error(self, resp):
         re_captcha_error = re.compile(text_type(u"验证码错误了"), re.U)
-        with open('{0}.post_resp.html'.format(self.drivername), 'w') as f:
-            f.write(resp_body.decode(encoding='utf-8'))
-        tree = etree.parse(StringIO(resp_body.decode(encoding='utf-8')), etree.HTMLParser())
+        with open('{0}.post_resp.html'.format(self.drivername), 'w', encoding='utf-8') as f:
+            f.write(resp.text)
+        tree = etree.parse(StringIO(resp.text), etree.HTMLParser())
 
         # Iterates all <input> tags
         captcha_error = False
@@ -104,7 +107,10 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         net_text_url = r'http://haijia.bjxueche.net/Login.aspx/GetNetText'
 
         self.debug(msg='{0} at time {1}'.format(net_text_url, datetime.now()), by='get_net_text')
-        _, resp = self.session.open_url_n_read(url=net_text_url)
+        resp, _ = self.session.post_with_response(url=net_text_url, data=bytes(''),
+                                                  headers={'accept': 'application/json',
+                                                           'content-type': 'application/json'})
+        return resp
 
     def __str__(self):
         return 'Driver: {0}'.format(self.drivername)
@@ -125,13 +131,15 @@ class LoginForm(dict):
     def __init__(self, drivername, password):
         self['__VIEWSTATE'] = None
         self['__EVENTVALIDATION'] = None
+        self['__VIEWSTATEGENERATOR'] = None
         self['txtUserName'] = drivername
         self['txtPassword'] = password
         self['txtIMGCode'] = None
-        self['rcode'] = None
 
     def load_form_with_parsed_html(self, resp_body):
-        tree = etree.parse(StringIO(resp_body.decode(encoding='utf-8')), etree.HTMLParser())
+        with open('{0}.loginform.html'.format(self['txtUserName']), 'w', encoding='utf-8') as f:
+            f.write(resp_body)
+        tree = etree.parse(StringIO(resp_body), etree.HTMLParser())
         # Iterates all <input> tags
         for u in tree.iterfind('.//input'):
             name = u.get('id')
@@ -140,7 +148,6 @@ class LoginForm(dict):
 
     def load_captcha(self, captcha):
         self['txtIMGCode'] = captcha
-        self['rcode'] = ''
 
     def urlencode(self):
         s_data_being_posted = urlparse.urlencode([(k, v) for k, v in self.items()])
