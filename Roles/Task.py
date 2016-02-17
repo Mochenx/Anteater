@@ -73,9 +73,7 @@ class WaitToTimeTask(Task):
         try_cnt = 0
         while True:
             try:
-                if self.start_to_book_cars():
-                    return
-
+                # Launch bookings simultaneously here
                 self.cars = self.booker.get_cars(book_date)
                 try_cnt += 1
                 if try_cnt == 50:
@@ -97,7 +95,7 @@ class WaitToTimeTask(Task):
                 self.debug(msg="Login done operation has done at {0}".format(datetime.now()),
                            by='WaitToTimeTask.login')
                 try:
-                    # We try to get car infomation is to make sure it has logged in successfully
+                    # We try to get car information is to make sure it has logged in successfully
                     self.cars = self.booker.get_cars(date)
                 except Exception as e:
                     self.debug(msg="Raise LoginAgain for the reason that "
