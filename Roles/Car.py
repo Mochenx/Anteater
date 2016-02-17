@@ -3,7 +3,7 @@
 import re
 import json
 from lxml import etree
-from six import with_metaclass
+from six import with_metaclass, text_type
 import six.moves.urllib.parse as urlparse
 
 from Roles.Role import RoleCreatorWithLogger, Role, Logger
@@ -41,7 +41,7 @@ class Car(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
             book_rslt = json.loads(re.sub(r'_0', '', tree.text))
         except Exception as e:
             return False
-        self.debug(msg=str(book_rslt), by='book_car')
+        self.debug(msg=text_type(book_rslt), by='book_car')
         with open('book_car_xml.html', 'wb') as h:
             h.write(resp_body)
         try:
@@ -49,7 +49,7 @@ class Car(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
                 if rslt['Result'] is True:
                     return True
         except Exception as e:
-            self.debug(msg=str(e), by='book_car')
+            self.debug(msg=text_type(e), by='book_car')
             return False
         return False
 

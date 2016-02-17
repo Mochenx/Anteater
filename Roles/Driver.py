@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 from lxml import etree
 from io import StringIO
-from six import with_metaclass, text_type
+from six import with_metaclass, text_type, PY3
 import six.moves.urllib.parse as urlparse
 from codecs import open
 
@@ -13,6 +13,11 @@ from Roles.CAPTCHARecognizer import CAPTCHAError, CAPTCHARecognizer
 from Roles.Session import URLsForHJ
 
 __author__ = 'mochenx'
+
+if PY3:
+    to_bytes = lambda x: bytes(x, encoding='utf-8')
+else:
+    to_bytes = lambda x: bytes(x)
 
 
 class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
@@ -81,7 +86,7 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         self.debug(msg='{0} at time {1}'.format(data_being_posted, datetime.now()),
                    by='post_login_data')
         resp, body = self.session.post_with_response(url=URLsForHJ.login_url,
-                                                     data=bytes(data_being_posted), timeout=5,
+                                                     data=to_bytes(data_being_posted), timeout=5,
                                                      headers={'content-type': 'application/x-www-form-urlencoded'})
 
         self._is_captcha_error(resp)
@@ -105,7 +110,7 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 
     def _get_net_text(self):
         self.debug(msg='{0} at time {1}'.format(URLsForHJ.net_text_url, datetime.now()), by='get_net_text')
-        resp, _ = self.session.post_with_response(url=URLsForHJ.net_text_url, data=bytes(''),
+        resp, _ = self.session.post_with_response(url=URLsForHJ.net_text_url, data=to_bytes(u''),
                                                   headers={'accept': 'application/json',
                                                            'content-type': 'application/json'})
         return resp
@@ -118,7 +123,7 @@ class LoginAgain(BaseException):
     def __init__(self, *args, **kwargs):
         if 'logger' in kwargs.keys():
             logger = kwargs['logger']
-            logger.debug(msg='Unknown Exception in login:\n{0}'.format(args[0]), by='Login')
+            logger.debug(msg=u'Unknown Exception in login:\n{0}'.format(args[0]), by='Login')
 
 
 class LoginFail(BaseException):

@@ -3,7 +3,7 @@
 import re
 import json
 from lxml import etree
-from six import with_metaclass, PY3
+from six import with_metaclass, text_type
 import six.moves.urllib.parse as urlparse
 from datetime import datetime
 from io import StringIO
@@ -46,17 +46,19 @@ class Booker(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 
             self.debug(msg=u'Query Cars response: {0} at time {1}'.format(resp.text, datetime.now()),
                        by='get_cars')
-            # Get car information form response
+            # Get car information from response
             car_info = self._parse_car_info_json(resp_body)
-            self.debug(msg='Cars: {0} at time {1}'.format(str(car_info), datetime.now()),
+            self.debug(msg=u'Cars: {0} at time {1}'.format(text_type(car_info), datetime.now()),
                        by='get_cars')
 
             if 'LoginOut' in car_info:
-                self.debug(msg='LoginOut is returned in response, login again'.format(str(car_info), datetime.now()),
+                self.debug(msg=u'LoginOut is returned in response, login again'.format(text_type(car_info),
+                                                                                       datetime.now()),
                            by='get_cars')
                 raise LoginAgain()
+            assert isinstance(car_info, list)
             car_infos.extend(car_info)
-            cars = self._create_cars(car_infos)
+        cars = self._create_cars(car_infos)
 
         return cars
 
@@ -87,7 +89,7 @@ class Booker(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
                                              lesson_type=self.lesson_type)
                               for time_period in periods]
 
-        query_url = [str(query_args) for query_args in get_car_query_args]
+        query_url = [text_type(query_args) for query_args in get_car_query_args]
         return query_url
 
     def _create_cars(self, car_infos):
@@ -101,10 +103,7 @@ class Booker(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 
     @staticmethod
     def _parse_car_info_json(resp_body):
-        if PY3:
-            tree = etree.fromstring(resp_body.encode('utf-8'))
-        else:
-            tree = etree.fromstring(resp_body)
+        tree = etree.fromstring(resp_body)
         car_info_in_json = re.sub(r'\]_+.*', r']', tree.text)
         car_info = json.loads(car_info_in_json)
         return car_info
