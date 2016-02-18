@@ -1,6 +1,9 @@
 # encoding=utf-8
 
 from Roles.Logger import Logger
+from os.path import join, exists
+from os import makedirs
+import codecs
 
 __author__ = 'mochenx'
 
@@ -29,6 +32,21 @@ class Role(object):
 
     def __init__(self, **kwargs):
         super(Role, self).__init__(**kwargs)
+        self._log_path = './'
+
+    @property
+    def log_path(self):
+        return self._log_path
+
+    @log_path.setter
+    def log_path(self, val):
+        self._log_path = val
+
+    def write_html(self, fname, html_text):
+        if self.log_path != './' and not exists(self.log_path):
+            makedirs(self.log_path)
+        with codecs.open(join(self.log_path, fname), 'w', encoding='utf-8') as f:
+            f.write(html_text)
 
     @classmethod
     def get(cls, name):

@@ -76,6 +76,7 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 
         login_post_data = LoginForm(self.drivername, self.password)
         # body is a UTF-8 encoded bytes-type variable, so decode it firstly
+        self.write_html('{0}.loginform.html'.format(self.drivername), resp.text)
         login_post_data.load_form_with_parsed_html(resp.text)
 
         return login_post_data
@@ -95,8 +96,7 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 
     def _is_captcha_error(self, resp):
         re_captcha_error = re.compile(text_type(u"验证码错误了"), re.U)
-        with open('{0}.post_resp.html'.format(self.drivername), 'w', encoding='utf-8') as f:
-            f.write(resp.text)
+        self.write_html('{0}.post_resp.html'.format(self.drivername), resp.text)
         tree = etree.parse(StringIO(resp.text), etree.HTMLParser())
 
         # Iterates all <input> tags
@@ -140,8 +140,6 @@ class LoginForm(dict):
         self['txtIMGCode'] = None
 
     def load_form_with_parsed_html(self, resp_body):
-        with open('{0}.loginform.html'.format(self['txtUserName']), 'w', encoding='utf-8') as f:
-            f.write(resp_body)
         tree = etree.parse(StringIO(resp_body), etree.HTMLParser())
         # Iterates all <input> tags
         for u in tree.iterfind('.//input'):

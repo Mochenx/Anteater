@@ -15,6 +15,7 @@ class UTDriver(unittest.TestCase):
     def setUp(self):
         self.shared_session = Session()
         self.driver = Role.get('Driver')
+        self.driver.log_path = 'log_utdriver'
 
     def test_creation_n_properties_of_driver(self):
         self.driver = Role.get('Driver')
