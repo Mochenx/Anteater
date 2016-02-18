@@ -16,7 +16,7 @@ class Launcher(Logger):
         super(Launcher, self).__init__()
 
         self.work_threads = None
-        self._supervisor = Thread(target=self._supervise)
+        self._supervisor = Thread(target=self._supervise, name='supervisor')
 
         self._right_of_trigger_event = Semaphore()
         self._thread_done = Event()
@@ -52,6 +52,7 @@ class Launcher(Logger):
 
         while not all_threads_end:
             self._thread_done.wait()
+            time.sleep(0.001)  # 1ms
             all_threads_end = self.manage_working()
             self.start_new_thread()
             self._thread_done.clear()
@@ -64,7 +65,7 @@ class Launcher(Logger):
         for a_thread in self.working.keys():
             self.working[a_thread] = False
         for a_thread in enumerate():
-            if a_thread in self.working.keys():
+            if a_thread in self.working.keys() and a_thread.is_alive():
                 self.working[a_thread] = True
         ended_works = [a_thread for a_thread, status in self.working.items() if status is False]
 
