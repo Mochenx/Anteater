@@ -35,15 +35,15 @@ class Car(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         book_car_query_args = BookCarQuery(lesson_type=self.lesson_type, car_info=self.car_info)
         book_car_service_url = str(book_car_query_args)
         self.debug(msg=book_car_service_url, by='book_car')
-        _, resp_body = self.session.open_url_n_read(url=book_car_service_url, timeout=2)
+        resp, resp_body = self.session.open_url_n_read(url=book_car_service_url, timeout=5)
         try:
             tree = etree.fromstring(resp_body)
             book_rslt = json.loads(re.sub(r'_0', '', tree.text))
         except Exception as e:
             return False
         self.debug(msg=text_type(book_rslt), by='book_car')
-        with open('book_car_xml.html', 'wb') as h:
-            h.write(resp_body)
+        self.write_html('car.{0}.html'.format(book_car_query_args.query_id), resp.text)
+
         try:
             for rslt in book_rslt:
                 if rslt['Result'] is True:
@@ -52,6 +52,15 @@ class Car(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
             self.debug(msg=text_type(e), by='book_car')
             return False
         return False
+
+    def __call__(self, *args, **kwargs):
+        work_done = kwargs['work_done'] if 'work_done' in kwargs else None
+        try:
+            self.run()
+        except Exception as e:
+            pass
+        if work_done is not None:
+            work_done()
 
 
 class BookCarQuery(dict):
@@ -66,3 +75,7 @@ class BookCarQuery(dict):
     def __str__(self):
         encoded_book_car_query_args = urlparse.urlencode([(k, v) for k, v in self.items()])
         return self.book_car_service_url + encoded_book_car_query_args
+
+    @property
+    def query_id(self):
+        return '{0}.{1}'.format(self['xnsd'], self['cnbh'])

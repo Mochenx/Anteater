@@ -12,7 +12,6 @@ __author__ = 'mochenx'
 class Launcher(Logger):
     """ Launcher initiates car booking threads simultaneously, and manges these threads """
 
-    # TODO: All printings will be substituted to logger.debug
     def __init__(self, max_thread_number=10):
         super(Launcher, self).__init__()
 
@@ -36,13 +35,16 @@ class Launcher(Logger):
 
         # Start supervising thread before all others
         self._supervisor.start()
-        print(self._supervisor.is_alive())
 
         for i in range(self.max_thread_number):
             self.start_new_thread()
-            time.sleep(randrange(1, 100)/100)
+            self.burst_intervals()
 
         self._supervisor.join()
+
+    def burst_intervals(self):
+        """ For future use, to tweak the interval in bursting threads"""
+        time.sleep(randrange(1, 100)/100)
 
     def _supervise(self):
         """ A task, run in background, supervises and forks new thread """
@@ -57,12 +59,16 @@ class Launcher(Logger):
 
     def manage_working(self):
         """ Find which thread has ended and delete it in working queue """
+
+        # Find the terminated threads
         for a_thread in self.working.keys():
             self.working[a_thread] = False
         for a_thread in enumerate():
             if a_thread in self.working.keys():
                 self.working[a_thread] = True
         ended_works = [a_thread for a_thread, status in self.working.items() if status is False]
+
+        # Delete all of them
         for a_thread in ended_works:
             del self.working[a_thread]
 
@@ -77,7 +83,6 @@ class Launcher(Logger):
         self.working[new_thread] = True
         self.thread_index += 1
         new_thread.start()
-        print(new_thread.is_alive())
 
     def work_done(self):
         """ A method passed to all workers. Each worker call this method when it's going to terminate """
