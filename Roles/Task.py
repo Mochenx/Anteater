@@ -2,10 +2,13 @@
 
 from datetime import datetime
 
-from six import with_metaclass
+from six import with_metaclass, text_type
 from Roles.Role import RoleCreatorWithLogger, Role, Logger
 from Roles.Driver import LoginAgain
 from Roles.Session import Session
+from Roles.Launcher import Launcher
+import random
+import time
 
 __author__ = 'mochenx'
 
@@ -41,6 +44,8 @@ class WaitToTimeTask(Task):
         # self.session = Role.get('Session')
         self.session = Session()
         self.cars = None
+        self.max_thread_number = 10
+        self.launcher = Launcher(max_thread_number=self.max_thread_number)
 
     @classmethod
     def create(cls):
@@ -66,30 +71,20 @@ class WaitToTimeTask(Task):
 
     def run(self):
         book_date = self.timer.run()
-        self._driver_login(book_date)
+        if not self.driver_login(book_date):
+            return False
 
         self.debug(msg="Login done at {0}".format(datetime.now()), by='WaitToTimeTask.run')
-        print("Login done at {0}".format(datetime.now()))
-        try_cnt = 0
-        while True:
-            try:
-                # Launch bookings simultaneously here
-                self.cars = self.booker.get_cars(book_date)
-                try_cnt += 1
-                if try_cnt == 50:
-                    return
-                elif try_cnt > 0 and try_cnt % 10 == 0 and self.booker.get_booking_status(book_date):
-                    return
-            except LoginAgain:
-                print("Exception occurs, try to login again")
-                self.debug(msg="Exception occurs, try to login again", by='WaitToTimeTask.run')
-                self._driver_login()
-                print("Login done")
-                self.debug(msg="Login done", by='WaitToTimeTask.run')
-                continue
 
-    def _driver_login(self, date):
-        while True:
+        if not self.get_cars(book_date):
+            return False
+
+        if not self.book_cars(book_date):
+            return False
+
+    def driver_login(self, date):
+        retry_cnt = 10
+        while retry_cnt > 0:
             try:
                 self.driver.login()
                 self.debug(msg="Login done operation has done at {0}".format(datetime.now()),
@@ -97,15 +92,64 @@ class WaitToTimeTask(Task):
                 try:
                     # We try to get car information is to make sure it has logged in successfully
                     self.cars = self.booker.get_cars(date)
+                    break
                 except Exception as e:
-                    self.debug(msg="Raise LoginAgain for the reason that "
-                                   "something wrong in get_cars at time: {0}".format(datetime.now()),
-                               by='WaitToTimeTask.login')
+                    self.debug(msg=u"Raise LoginAgain for the reason that "
+                                   u"something wrong in get_cars at time: {0}".format(datetime.now()),
+                               by=u'WaitToTimeTask.login')
+                    self.debug(msg=text_type(e), by=u'WaitToTimeTask.login')
                     raise LoginAgain()
-                break
             except LoginAgain:
+                if retry_cnt == 0:
+                    return False
+                retry_cnt -= 1
+                time.sleep(random.randrange(100, 150)/100)
                 continue
+
         return True
+
+    def get_cars(self, book_date):
+        """ Launch bookings simultaneously here """
+        retry_cnt = 20
+        while retry_cnt > 0:
+            try:
+                self.cars = self.booker.get_cars(book_date)
+                return True
+            except Exception as e:
+                self.debug(msg=u"Exception occurs when getting CARS, try to get again", by='WaitToTimeTask.run')
+                self.debug(msg=text_type(e), by='WaitToTimeTask.run')
+                if retry_cnt == 0:
+                    return False
+                retry_cnt -= 1
+                time.sleep(random.randrange(25, 100)/100)
+                continue
+
+    def book_cars(self, book_date):
+        """ Launch bookings simultaneously here """
+        retry_cnt = 20
+        while retry_cnt > 0:
+            try:
+                self.burst_booking()
+                if self.booker.get_booking_status(book_date):
+                    return True
+            except Exception as e:
+                self.debug(msg=u"Exception occurs when BOOKING, try to get again", by='WaitToTimeTask.run')
+                self.debug(msg=text_type(e), by='WaitToTimeTask.run')
+                if retry_cnt == 0:
+                    return False
+                retry_cnt -= 1
+                time.sleep(random.randrange(50, 100)/100)
+                continue
+
+    def burst_booking(self):
+        """ Randomly choose some cars, then call Launcher's run method to book them simultaneously  """
+        worker_num = self.max_thread_number + 5
+        if len(self.cars) <= worker_num:
+            workers = self.cars
+        else:
+            workers = [random.choice(self.cars) for _ in range(worker_num)]
+        self.launcher.load_workers(workers)
+        self.launcher.run()
 
     def __str__(self):
         task_description = 'WaitToTimeTask:\n'

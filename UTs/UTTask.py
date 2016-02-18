@@ -53,4 +53,4 @@ class UTTask(unittest.TestCase):
             self.dut.booker.get_cars(book_date)
         self.assertRaises(Exception, get_cars)
         # Step 2, login successfully
-        self.assertTrue(self.dut._driver_login(book_date.strftime('%Y%m%d')))
+        self.assertTrue(self.dut.driver_login(book_date.strftime('%Y%m%d')))
