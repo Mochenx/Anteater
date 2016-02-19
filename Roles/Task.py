@@ -66,7 +66,8 @@ class WaitToTimeTask(Task):
             raise ValueError('Properties timer, driver and booker are needed for class WaitToTimeTask')
 
         if 'retry_times' in kwargs:
-            self.retry_times = kwargs['retry_times']
+            self.retry_times = kwargs['retry_times'] if isinstance(kwargs['retry_times'], int) else \
+                int(kwargs['retry_times'])
 
     def role_create(self, role_parameters):
         role_name = role_parameters[0]

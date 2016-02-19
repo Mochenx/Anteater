@@ -20,7 +20,7 @@ class UTTask(unittest.TestCase):
 
     def test_creation_n_properties_of_booker(self):
         task_descripton = {
-            'name': 'creation_n_properties_of_booker',
+            'name': 'creation_n_properties_of_booker', 'retry_times': '3',
             'timer': ['WaitingTimer', {'set_book_date': 'Jan 01 2017'}],
             'driver': ['Driver', {'drivername': 'mm', 'password': '112233'}],
             'booker': ['Booker', {'time_periods': 'Morning', 'lesson_type': '2'}]
@@ -31,6 +31,7 @@ class UTTask(unittest.TestCase):
         self.assertEquals('112233', self.dut.driver.password)
         self.assertEquals('Morning', self.dut.booker.time_periods)
         self.assertEquals('2', self.dut.booker.lesson_type)
+        self.assertEquals(3, self.dut.retry_times)
 
     def test_driver_login(self):
         task_descripton = {
