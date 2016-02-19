@@ -34,22 +34,25 @@ class Car(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
     def run(self):
         book_car_query_args = BookCarQuery(lesson_type=self.lesson_type, car_info=self.car_info)
         book_car_service_url = str(book_car_query_args)
-        self.debug(msg=book_car_service_url, by='book_car')
+        self.debug(msg=book_car_service_url, by='Car')
         resp, resp_body = self.session.open_url_n_read(url=book_car_service_url, timeout=5)
+
+        self.write_html('car.{0}.html'.format(book_car_query_args.query_id), resp.text)
         try:
             tree = etree.fromstring(resp_body)
             book_rslt = json.loads(re.sub(r'_0', '', tree.text))
         except Exception as e:
+            self.debug(msg=u'Car[{0}] stop at parsing responded JSON'.format(book_car_query_args.query_id),
+                       by='Car')
             return False
-        self.debug(msg=text_type(book_rslt), by='book_car')
-        self.write_html('car.{0}.html'.format(book_car_query_args.query_id), resp.text)
+        self.debug(msg=u'Car[{0}]: {1}'.format(book_car_query_args.query_id, text_type(book_rslt)), by='Car')
 
         try:
             for rslt in book_rslt:
                 if rslt['Result'] is True:
                     return True
         except Exception as e:
-            self.debug(msg=text_type(e), by='book_car')
+            self.debug(msg=text_type(e), by='Car')
             return False
         return False
 

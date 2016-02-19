@@ -65,11 +65,13 @@ class Booker(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
     def get_booking_status(self, date):
         re_book_date = datetime.strptime(date, '%Y%m%d').strftime('\s*%Y\s*-\s*%m-\s*%d\s*')
         try:
-            _, booking_rslt = self.session.open_url_n_read(URLsForHJ.booking_rslt_url)
+            resp, booking_rslt = self.session.open_url_n_read(URLsForHJ.booking_rslt_url)
         except Exception:
             return False
         if booking_rslt is None:
             return False
+
+        self.write_html('booking_status.html', resp.text)
 
         tree = etree.parse(StringIO(booking_rslt.decode(encoding='utf-8')), etree.HTMLParser())
 
@@ -98,6 +100,8 @@ class Booker(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
             car = Role.get('Car')
             car.load_properties(session=self.session, lesson_type=self.lesson_type, car_info=car_info)
                             # date=car_info['YYRQ'], time_period=car_info['XNSD'], car_id=car_info['CNBH'])
+            car.log_path = self.log_path
+            car.logger = self.logger
             cars.append(car)
         return cars
 

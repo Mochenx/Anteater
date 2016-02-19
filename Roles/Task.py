@@ -46,7 +46,8 @@ class WaitToTimeTask(Task):
         self.session = Session()
         self.cars = None
         self.max_thread_number = 10
-        self.launcher = Launcher(max_thread_number=self.max_thread_number)
+        self.launcher = None
+        self.retry_times = 20
 
     @classmethod
     def create(cls):
@@ -63,7 +64,9 @@ class WaitToTimeTask(Task):
             self.booker = self.role_create(kwargs['booker'])
         elif self.session is None:
             raise ValueError('Properties timer, driver and booker are needed for class WaitToTimeTask')
-        self.session.logger = self.logger
+
+        if 'retry_times' in kwargs:
+            self.retry_times = kwargs['retry_times']
 
     def role_create(self, role_parameters):
         role_name = role_parameters[0]
@@ -131,7 +134,7 @@ class WaitToTimeTask(Task):
 
     def book_cars(self, book_date):
         """ Launch bookings simultaneously here """
-        retry_cnt = 20
+        retry_cnt = self.retry_times
         while retry_cnt > 0:
             try:
                 self.burst_booking()
@@ -148,11 +151,17 @@ class WaitToTimeTask(Task):
 
     def burst_booking(self):
         """ Randomly choose some cars, then call Launcher's run method to book them simultaneously  """
+        self.launcher = Launcher(max_thread_number=self.max_thread_number)
+
         worker_num = self.max_thread_number + 5
         if len(self.cars) <= worker_num:
             workers = self.cars
         else:
-            workers = [random.choice(self.cars) for _ in range(worker_num)]
+            cars_after_rand = self.cars
+            random.shuffle(cars_after_rand)
+            workers = cars_after_rand[: worker_num]
+        self.debug(msg=u"Start to book {0} cars simultaneously".format(len(workers)),
+                   by='WaitToTimeTask.run')
         self.launcher.load_workers(workers)
         self.launcher.run()
 
