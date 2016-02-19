@@ -9,6 +9,7 @@ import re
 from requests.exceptions import ConnectionError, Timeout
 
 from Roles.Role import RoleCreatorWithLogger, Role, Logger
+from Roles.Session import URLsForHJ
 
 __author__ = 'mochenx'
 
@@ -30,15 +31,74 @@ class Timer(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         tz_beijing = pytz.timezone('Asia/Shanghai')
         return tz_beijing.localize(naive_date)
 
+    @staticmethod
+    def get_date_from_http_header(headers):
+        """
+            A function of scanning all items in a header and finding the response time
+        """
+        the_date = headers['Date']
+        the_date = re.sub(r'\s*[\r\n]', '', the_date)
+        return the_date
+
+    def convert_to_local_tz(self, server_time):
+        """
+            Convert time from GMT to local time zone, at here, Asia/Shanghai
+        """
+        tz_gmt = pytz.timezone('GMT')
+        tz_beijing = pytz.timezone('Asia/Shanghai')
+        server_time = server_time.replace(tzinfo=tz_gmt)
+        loc_time = server_time.astimezone(tz_beijing)
+        self.debug(msg=loc_time.strftime('%d %b %X'), by='get_server_time')
+        return loc_time
+
+    def get_server_time(self):
+        resp, _ = self.session.open_url_n_read(url=URLsForHJ.connect, timeout=20)
+        time_from_http_server = self.get_date_from_http_header(resp.headers)
+        self.debug(msg=time_from_http_server, by='get_server_time')
+        server_time = datetime.strptime(time_from_http_server, '%a, %d %b %Y %X %Z')
+        return self.convert_to_local_tz(server_time)
+
     def run(self):
         raise NotImplementedError('Method run must be implemented in sub class of Timer')
+
+
+class BookNowTimer(Timer):
+    def __init__(self, **kwargs):
+        super(Timer, self).__init__(**kwargs)
+
+    @classmethod
+    def create(cls):
+        cls.new_property('session')
+        cls.new_property('set_book_date')
+        return BookNowTimer()
+
+    def load_properties(self, **kwargs):
+        if 'session' in kwargs:
+            self.session = kwargs['session']
+        elif self.session is None:
+            raise ValueError('Property session are needed for class Timer')
+        if 'set_book_date' in kwargs:
+            self.set_book_date = self.localize_date(kwargs['set_book_date'])
+        else:
+            raise KeyError('Not Found Setting: set_book_date')
+
+    def run(self):
+        loc_time = self.get_server_time()
+        book_date = self.get_book_date(loc_time)
+        return book_date.strftime('%Y%m%d')
+
+    def get_book_date(self, debut_time):
+        the_day_of_do_booking = self.set_book_date
+        book_date = debut_time.replace(year=the_day_of_do_booking.year,
+                                       month=the_day_of_do_booking.month,
+                                       day=the_day_of_do_booking.day)
+        return book_date
 
 
 class WaitingTimer(Timer):
 
     def __init__(self, **kwargs):
         super(Timer, self).__init__(**kwargs)
-        self.home_page_url = 'http://haijia.bjxueche.net/'
         self.debut_hour, self.debut_minute = 7, 34  # 7:34 AM
         self.days_in_advance = 7  #of days
 
@@ -80,13 +140,6 @@ class WaitingTimer(Timer):
         debut_time = self.get_debut_time(loc_time)
         book_date = self.get_book_date(debut_time)
         return book_date, debut_time, loc_time
-
-    def get_server_time(self):
-        resp, _ = self.session.open_url_n_read(url=self.home_page_url, timeout=20)
-        time_from_http_server = self.get_date_from_http_header(resp.headers)
-        self.debug(msg=time_from_http_server, by='get_server_time')
-        server_time = datetime.strptime(time_from_http_server, '%a, %d %b %Y %X %Z')
-        return self.convert_to_local_tz(server_time)
 
     def get_debut_time(self, loc_time):
         """
@@ -137,26 +190,6 @@ class WaitingTimer(Timer):
                                        month=the_day_of_do_booking.month,
                                        day=the_day_of_do_booking.day)
         return book_date
-
-    @staticmethod
-    def get_date_from_http_header(headers):
-        """
-            A function of scanning all items in a header and finding the response time
-        """
-        the_date = headers['Date']
-        the_date = re.sub(r'\s*[\r\n]', '', the_date)
-        return the_date
-
-    def convert_to_local_tz(self, server_time):
-        """
-            Convert time from GMT to local time zone, at here, Asia/Shanghai
-        """
-        tz_gmt = pytz.timezone('GMT')
-        tz_beijing = pytz.timezone('Asia/Shanghai')
-        server_time = server_time.replace(tzinfo=tz_gmt)
-        loc_time = server_time.astimezone(tz_beijing)
-        self.debug(msg=loc_time.strftime('%d %b %X'), by='get_server_time')
-        return loc_time
 
     def __str__(self):
         book_date, debut_time, _ = self.calc_date()

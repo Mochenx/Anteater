@@ -8,14 +8,15 @@ import time
 from datetime import datetime, timedelta
 
 from Roles.Role import Role
-from Roles.Session import Session
-from Roles.Timer import WaitingTimer
+from Roles.Session import Session, URLsForHJ
+from Roles.Timer import WaitingTimer, BookNowTimer
 
 __author__ = 'mochenx'
 
 
 class UTWaitingTimer(unittest.TestCase):
     def setUp(self):
+        URLsForHJ.connect = 'http://haijia.bjxueche.net'
         self.session = Session()
         self.session.set_max_retry(for_url='http://haijia.bjxueche.net/', max_retries=10)
         self.dut = Role.get('WaitingTimer')
@@ -73,7 +74,7 @@ class UTWaitingTimer(unittest.TestCase):
         self.assertEquals(fmt02, fmt03)
 
     def test_get_server_time_timeout_after_retry(self):
-        self.dut.home_page_url = 'http://haijia.bjxueche.net:81/'
+        URLsForHJ.connect = 'http://haijia.bjxueche.net:81'
         self.session.set_max_retry(for_url='http://haijia.bjxueche.net:81/', max_retries=5)
 
         def _test():
@@ -266,3 +267,12 @@ class UTWaitingTimer(unittest.TestCase):
         dut, server_time = self.to_test_run_common(lambda e: e + 4)
         wait_end_time = dut.get_server_time()
         self.assertGreaterEqual(wait_end_time - server_time, timedelta(minutes=2))
+
+    def test_book_now_0(self):
+        dut_book_now = BookNowTimer()
+        dut_book_now.load_properties(session=self.session, set_book_date='Jan 1 2020')
+        loc_time = dut_book_now.get_server_time()
+        book_time = dut_book_now.run()
+        wait_end_time = dut_book_now.get_server_time()
+
+        self.assertLess(wait_end_time - loc_time, timedelta(seconds=1))
