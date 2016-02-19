@@ -20,6 +20,7 @@ class UTTask(unittest.TestCase):
 
     def test_creation_n_properties_of_booker(self):
         task_descripton = {
+            'name': 'creation_n_properties_of_booker',
             'timer': ['WaitingTimer', {'set_book_date': 'Jan 01 2017'}],
             'driver': ['Driver', {'drivername': 'mm', 'password': '112233'}],
             'booker': ['Booker', {'time_periods': 'Morning', 'lesson_type': '2'}]
@@ -33,6 +34,7 @@ class UTTask(unittest.TestCase):
 
     def test_driver_login(self):
         task_descripton = {
+            'name': 'driver_login',
             'timer': ['WaitingTimer', {}],
             'driver': ['Driver', {'drivername': 'mm', 'password': '112233'}],
             'booker': ['Booker', {'time_periods': 'Morning', 'lesson_type': '2'}]

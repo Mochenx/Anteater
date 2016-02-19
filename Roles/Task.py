@@ -22,6 +22,7 @@ class Task(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 
 class WaitToTimeTask(Task):
     """{'Task': ['WaitToTimeTask', {
+                    'name' : 'some values',
                     'timer': ['WaitingTimer', {'set_book_date': some value}],
                     'driver': ['Driver', {'drivername': some value, 'password': some value}],
                     'booker': ['Booker', {'time_periods': some value, 'lesson_type': some value}]
@@ -55,7 +56,8 @@ class WaitToTimeTask(Task):
         return WaitToTimeTask()
 
     def load_properties(self, **kwargs):
-        if 'timer' in kwargs and 'driver' in kwargs and 'booker' in kwargs:
+        if 'timer' in kwargs and 'driver' in kwargs and 'booker' in kwargs and 'name' in kwargs:
+            self.log_path = self.log_file_name = kwargs['name']
             self.timer = self.role_create(kwargs['timer'])
             self.driver = self.role_create(kwargs['driver'])
             self.booker = self.role_create(kwargs['booker'])
@@ -66,6 +68,8 @@ class WaitToTimeTask(Task):
         role_name = role_parameters[0]
         loaded_prop = role_parameters[1]
         role = Role.get(role_name)
+        role.logger = self.logger
+        role.log_path = self.log_path
         role.load_properties(session=self.session, **loaded_prop)
         return role
 
