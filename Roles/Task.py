@@ -91,7 +91,7 @@ class WaitToTimeTask(Task):
             return False
 
     def driver_login(self, date):
-        retry_cnt = 10
+        retry_cnt = 30
         while retry_cnt > 0:
             try:
                 self.driver.login()
@@ -111,7 +111,7 @@ class WaitToTimeTask(Task):
                 if retry_cnt == 0:
                     return False
                 retry_cnt -= 1
-                time.sleep(random.randrange(100, 150)/100)
+                time.sleep(random.randrange(200, 500)/100)
                 continue
 
         return True
