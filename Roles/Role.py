@@ -41,6 +41,8 @@ class Role(object):
     @log_path.setter
     def log_path(self, val):
         self._log_path = val
+        if self._log_path[-1] != '/':
+            self._log_path += '/'
 
     def write_html(self, fname, html_text):
         if self.log_path != './' and not exists(self.log_path):

@@ -63,6 +63,7 @@ class WaitToTimeTask(Task):
             self.booker = self.role_create(kwargs['booker'])
         elif self.session is None:
             raise ValueError('Properties timer, driver and booker are needed for class WaitToTimeTask')
+        self.session.logger = self.logger
 
     def role_create(self, role_parameters):
         role_name = role_parameters[0]

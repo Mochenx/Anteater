@@ -49,18 +49,18 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
     def login(self):
         """
         """
-        CAPTCHA_rdr = CAPTCHARecognizer(self.session, prefix_fname=self.drivername)
+        CAPTCHA_rdr = CAPTCHARecognizer(self.session, prefix_fname=self.log_path)
 
         for i in range(self.login_repeat_times):
             try:
                 login_post_data = self._get_login_form()
                 self._get_net_text()
                 captcha = CAPTCHA_rdr.get_captcha()
-                self.debug(msg='CAPTCHA:{0}'.format(captcha), by='Login')
+                self.debug(msg=u'CAPTCHA:{0}'.format(captcha), by='Login')
                 login_post_data.load_captcha(captcha)
                 self._post_login_form(login_post_data)
             except CAPTCHAError as e:
-                self.debug(msg='CAPTCHA recognition error:{0}'.format(str(e)), by='Login')
+                self.debug(msg=u'CAPTCHA recognition error:{0}'.format(str(e)), by='Login')
                 self._get_net_text()
                 continue
             except Exception as e:
@@ -71,7 +71,7 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
     def _get_login_form(self):
         home_page_url = URLsForHJ.connect
 
-        self.debug(msg='{0} at time {1}'.format(home_page_url, datetime.now()), by='get_form')
+        self.debug(msg=u'{0} at time {1}'.format(home_page_url, datetime.now()), by='get_form')
         resp, _ = self.session.open_url_n_read(url=home_page_url)
 
         login_post_data = LoginForm(self.drivername, self.password)
@@ -84,14 +84,14 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
     def _post_login_form(self, login_post_data):
         data_being_posted = login_post_data.urlencode()
 
-        self.debug(msg='{0} at time {1}'.format(data_being_posted, datetime.now()),
+        self.debug(msg=u'{0} at time {1}'.format(data_being_posted, datetime.now()),
                    by='post_login_data')
         resp, body = self.session.post_with_response(url=URLsForHJ.login_url,
                                                      data=to_bytes(data_being_posted), timeout=5,
                                                      headers={'content-type': 'application/x-www-form-urlencoded'})
 
         self._is_captcha_error(resp)
-        self.debug(msg='Post login data done at time {0}'.format(datetime.now()),
+        self.debug(msg=u'Post login data done at time {0}'.format(datetime.now()),
                    by='post_login_data')
 
     def _is_captcha_error(self, resp):
@@ -109,7 +109,7 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
             raise CAPTCHAError('CAPTCHAError found after post')
 
     def _get_net_text(self):
-        self.debug(msg='{0} at time {1}'.format(URLsForHJ.net_text_url, datetime.now()), by='get_net_text')
+        self.debug(msg=u'{0} at time {1}'.format(URLsForHJ.net_text_url, datetime.now()), by='get_net_text')
         resp, _ = self.session.post_with_response(url=URLsForHJ.net_text_url, data=to_bytes(u''),
                                                   headers={'accept': 'application/json',
                                                            'content-type': 'application/json'})
