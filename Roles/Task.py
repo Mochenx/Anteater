@@ -167,7 +167,8 @@ class WaitToTimeTask(Task):
                 self.debug(msg=u"Quit to book cars", by='WaitToTimeTask.run')
                 return False
             retry_cnt -= 1
-            time.sleep(random.randrange(300, 700)/100)
+            # Delay 2 ~ 5 sec
+            time.sleep(random.randrange(200, 500)/100)
             self.debug(msg=u"Retry to book again, {0} times left".format(retry_cnt), by='WaitToTimeTask.run')
             continue
 

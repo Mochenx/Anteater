@@ -63,7 +63,6 @@ class Booker(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         return cars
 
     def get_booking_status(self, date):
-        re_book_date = datetime.strptime(date, '%Y%m%d').strftime('\s*%Y\s*-\s*%m-\s*%d\s*')
         try:
             resp, booking_rslt = self.session.open_url_n_read(URLsForHJ.booking_rslt_url)
         except Exception:
@@ -72,14 +71,18 @@ class Booker(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
             return False
 
         self.write_html('booking_status.html', resp.text)
+        self.parse_book_status(booking_rslt, date)
 
+    def parse_book_status(self, booking_rslt, date):
+        _date = datetime.strptime(date, '%Y%m%d')
+        re_book_date = re.compile(r'\s*{0}\s*/\s*{1}/\s*{2}\s*'.format(_date.year, _date.month, _date.day))
         tree = etree.parse(StringIO(booking_rslt.decode(encoding='utf-8')), etree.HTMLParser())
 
         for u in tree.iterfind('.//table'):
             name = u.get('id')
             if name == 'tblMain':
                 for u_inner in tree.iterfind('.//td'):
-                    if u_inner.text is not None and re.search(re_book_date, u_inner.text):
+                    if u_inner.text is not None and re_book_date.search(u_inner.text):
                         self.debug(msg='Got booking results of {0}: Ture'.format(date), by='get_booking_status')
                         return True
         self.debug(msg='Got booking results of {0}: False'.format(date), by='get_booking_status')

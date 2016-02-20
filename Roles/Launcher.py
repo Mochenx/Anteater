@@ -44,7 +44,7 @@ class Launcher(Logger):
 
     def burst_intervals(self):
         """ For future use, to tweak the interval in bursting threads"""
-        time.sleep(randrange(1, 100)/100)
+        time.sleep(randrange(20, 100)/100)
 
     def _supervise(self):
         """ A task, run in background, supervises and forks new thread """

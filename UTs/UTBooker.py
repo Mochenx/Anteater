@@ -141,6 +141,13 @@ class UTBooker(unittest.TestCase):
             self.assertEqual(cars[i].car_info["XNSD"], v["XNSD"])
             self.assertEqual(cars[i].car_info["CNBH"], v["CNBH"])
 
+    def test_parse_book_status(self):
+        with open('book_rslt.html', 'r') as f:
+            html = f.read()
+        self.assertTrue(self.dut.parse_book_status(html, '20160227'))
+        self.assertTrue(self.dut.parse_book_status(html, '20160222'))
+        self.assertFalse(self.dut.parse_book_status(html, '20160223'))
+
 
 class car_xmls(object):
     cars_xml_0 = """<?xml version="1.0" encoding="utf-8"?>
