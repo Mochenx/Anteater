@@ -1,0 +1,117 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+
+    <link type="text/css" href="css/ui-lightness/jquery-ui-1.8.21.custom.css" rel="stylesheet" />
+    <link type="text/css" href="css/start/jquery-ui-1.8.21.custom.css" rel="stylesheet" />
+    <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.8.21.custom.min.js"></script>
+    
+    
+    <style type="text/css">
+        
+        #tblMain{ width:100%; height:100%;}
+        #tblMain th{
+            background: url(images/hhf.gif) repeat scroll transparent;
+            border: 1px solid #CCC;
+            color: #fff;
+            letter-spacing: 2px;
+            padding-top: 13px;
+            padding-bottom: 13px;
+            font-family: 微软雅黑;
+            text-align: center;
+            font-size:14px;
+        }
+        #tblMain tr{ height:30px; text-align:center;}
+        #tblMain  td
+        {
+            border: 1px solid #CCC;
+            padding-top: 11px;
+            padding-bottom:11px;
+            font-family: 微软雅黑;
+            background-color: #f6f6f6;
+            font-size:13px;
+        }
+    </style>
+    <script language="javascript" type="text/javascript">
+        $(function () {
+            $(".tabs").tabs();
+        });
+    </script>
+</head>
+<body>
+<form method="post" action="./NetBooking.aspx" id="Form1">
+<div class="aspNetHidden">
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="" />
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUJMjAwMjk2ODYwD2QWAgIBD2QWAgIBDxYCHgtfIUl0ZW1Db3VudAICFgRmD2QWBGYPFQMRMjAxNi8yLzI3IDA6MDA6MDALMDg6MDAtMTI6MDABNGQCAQ8PFgIeD0NvbW1hbmRBcmd1bWVudAUeMjAxNi8yLzI3IDA6MDA6MDBfODEyXzYxMjQ1N184ZGQCAQ9kFgRmDxUDETIwMTYvMi8yMiAwOjAwOjAwCzA4OjAwLTEyOjAwATRkAgEPDxYCHwEFHjIwMTYvMi8yMiAwOjAwOjAwXzgxMl82MTI0NTdfOGRkZM/VBoFZNSfmapN6xopMxxt/8Jo0khqWY0u8OoZ0AGNS" />
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['Form1'];
+if (!theForm) {
+    theForm = document.Form1;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="2B31CC96" />
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="/wEdAAMvyFK5q2pvUw04jOSYinrHx6l7WY3v9fC4cBw6Vo1mX+fBC++wN6uwD/c5P1XBLEZD+ODP5cAFCTTq8TelrLD/PXH1jn4MtXYrG3sv7A+F9A==" />
+</div>
+    <div class="tabs">
+         <ul style=" font-size:12px;">
+                <li><a href="#lb_1"> 网上预约记录</a></li>
+         </ul>   
+
+        <div id="lb_1">
+            <table  cellspacing="0" cellpadding="1"  id="tblMain" >
+                <tr >
+                  <th >预约日期</th> <th>预约时段</th> <th>小时数</th><th>操 作</th> 
+                </tr>
+                
+                        <tr>
+                            <td>2016/2/27 0:00:00</td>
+                            <td>
+                                08:00-12:00
+                            </td>
+                            <td>
+                                4
+                            </td>
+                            <td>
+                                <a id="repeaterNetBooking_btnCancel_0" href="javascript:__doPostBack(&#39;repeaterNetBooking$ctl00$btnCancel&#39;,&#39;&#39;)">取消网上预约</a>
+                            </td>
+                        </tr>
+                    
+                        <tr>
+                            <td>2016/2/22 0:00:00</td>
+                            <td>
+                                08:00-12:00
+                            </td>
+                            <td>
+                                4
+                            </td>
+                            <td>
+                                <a id="repeaterNetBooking_btnCancel_1" href="javascript:__doPostBack(&#39;repeaterNetBooking$ctl01$btnCancel&#39;,&#39;&#39;)">取消网上预约</a>
+                            </td>
+                        </tr>
+                    
+            </table>
+        </div>
+    </div>
+    </form>
+</body>
+</html>
