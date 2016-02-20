@@ -40,6 +40,8 @@ class WaitToTimeTask(Task):
             'lesson_type': '',
         }
     """
+    HJ_book_time = {'hour': 7, 'minute': 35, 'second': 0, 'microsecond': 0}
+
     def __init__(self, **kwargs):
         super(WaitToTimeTask, self).__init__(**kwargs)
         # self.session = Role.get('Session')
@@ -59,6 +61,8 @@ class WaitToTimeTask(Task):
     def load_properties(self, **kwargs):
         if 'timer' in kwargs and 'driver' in kwargs and 'booker' in kwargs and 'name' in kwargs:
             self.log_path = self.log_file_name = kwargs['name']
+            self.session.logger = self.logger
+
             self.timer = self.role_create(kwargs['timer'])
             self.driver = self.role_create(kwargs['driver'])
             self.booker = self.role_create(kwargs['booker'])
@@ -87,6 +91,8 @@ class WaitToTimeTask(Task):
 
         if not self.get_cars(book_date):
             return False
+
+        self.t_minus()
 
         if not self.book_cars(book_date):
             return False
@@ -133,6 +139,17 @@ class WaitToTimeTask(Task):
                 time.sleep(random.randrange(25, 100)/100)
                 continue
 
+    def t_minus(self):
+        loc_time = self.timer.get_server_time()
+        book_time = loc_time.replace(**self.HJ_book_time)
+        if book_time < loc_time:
+            return
+        t_minus = book_time - loc_time
+        t_minus = t_minus.seconds + 1  # 1 more second
+        self.debug(msg=u"T-Minus: {0} at {1}".format(t_minus, datetime.now()), by='WaitToTimeTask.t_minus')
+        time.sleep(t_minus)
+        self.debug(msg=u"T-Minus: Go at {0}".format(datetime.now()), by='WaitToTimeTask.t_minus')
+
     def book_cars(self, book_date):
         """ Launch bookings simultaneously here """
         retry_cnt = self.retry_times
@@ -140,15 +157,19 @@ class WaitToTimeTask(Task):
             try:
                 self.burst_booking()
                 if self.booker.get_booking_status(book_date):
+                    self.debug(msg=u"Success to book cars", by='WaitToTimeTask.run')
                     return True
             except Exception as e:
                 self.debug(msg=u"Exception occurs when BOOKING, try to get again", by='WaitToTimeTask.run')
                 self.debug(msg=text_type(e), by='WaitToTimeTask.run')
-                if retry_cnt == 0:
-                    return False
-                retry_cnt -= 1
-                time.sleep(random.randrange(50, 100)/100)
-                continue
+
+            if retry_cnt == 0:
+                self.debug(msg=u"Quit to book cars", by='WaitToTimeTask.run')
+                return False
+            retry_cnt -= 1
+            time.sleep(random.randrange(300, 700)/100)
+            self.debug(msg=u"Retry to book again, {0} times left".format(retry_cnt), by='WaitToTimeTask.run')
+            continue
 
     def burst_booking(self):
         """ Randomly choose some cars, then call Launcher's run method to book them simultaneously  """

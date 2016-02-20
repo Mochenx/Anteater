@@ -4,7 +4,7 @@ import unittest
 import json
 import pytz
 from Roles.Role import Role
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # The followings are essential to UTTask, for the reason that no class registering occurs when they're not imported
 from Roles.Task import WaitToTimeTask
@@ -16,6 +16,7 @@ from Roles.Driver import LoginAgain
 class UTTask(unittest.TestCase):
     def setUp(self):
         self.dut = Role.get('WaitToTimeTask')
+        self.dut.HJ_book_time = {'hour': 7, 'minute': 35, 'second': 0, 'microsecond': 0}
 
 
     def test_creation_n_properties_of_booker(self):
@@ -57,3 +58,27 @@ class UTTask(unittest.TestCase):
         self.assertRaises(Exception, get_cars)
         # Step 2, login successfully
         self.assertTrue(self.dut.driver_login(book_date.strftime('%Y%m%d')))
+
+    def test_t_minus(self):
+        task_descripton = {
+            'name': 't_minus', 'retry_times': '3',
+            'timer': ['WaitingTimer', {'set_book_date': 'Jan 01 2017'}],
+            'driver': ['Driver', {'drivername': 'mm', 'password': '112233'}],
+            'booker': ['Booker', {'time_periods': 'Morning', 'lesson_type': '2'}]
+        }
+        self.dut.load_properties(**task_descripton)
+
+        loc_time = self.dut.timer.get_server_time()
+        book_time = loc_time + timedelta(minutes=1)
+        book_time = book_time.replace(second=1, microsecond=0)
+        print(loc_time)
+        print(book_time)
+        self.dut.HJ_book_time['hour'] = book_time.hour
+        self.dut.HJ_book_time['minute'] = book_time.minute
+        before = datetime.now()
+        self.dut.t_minus()
+        after = datetime.now()
+        time_t_minus = after - before
+        print(time_t_minus.seconds)
+        self.assertLessEqual(time_t_minus.seconds, 61)
+        self.assertGreaterEqual(time_t_minus.seconds, 1)

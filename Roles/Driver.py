@@ -90,13 +90,14 @@ class Driver(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
                                                      data=to_bytes(data_being_posted), timeout=5,
                                                      headers={'content-type': 'application/x-www-form-urlencoded'})
 
+        self.write_html('{0}.post_login.html'.format(self.drivername), resp.text)
         self._is_captcha_error(resp)
         self.debug(msg=u'Post login data done at time {0}'.format(datetime.now()),
                    by='post_login_data')
 
     def _is_captcha_error(self, resp):
         re_captcha_error = re.compile(text_type(u"验证码错误了"), re.U)
-        self.write_html('{0}.post_resp.html'.format(self.drivername), resp.text)
+        self.write_html('{0}.post_login.error.html'.format(self.drivername), resp.text)
         tree = etree.parse(StringIO(resp.text), etree.HTMLParser())
 
         # Iterates all <input> tags
