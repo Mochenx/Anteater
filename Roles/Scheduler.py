@@ -13,17 +13,17 @@ class Scheduler(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         YAML
         - - WaitToTimeTask
           - name : some values
-            timer:
+            when:
             - WaitingTimer
-            - set_book_date: some value
-            driver:
+            - lesson_date: some value
+            who:
             - Driver
             - drivername: some value
               password: some value
-            booker:
+            what:
             - Booker
             - time_periods: some value
-            - lesson_type: some value
+              lesson_type: some value
         - - WaitToTimeTask
           - name : some values
             timer:
@@ -34,7 +34,7 @@ class Scheduler(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
         [
             ['WaitToTimeTask', {
                 'name' : 'some values',
-                'timer': ['WaitingTimer', {'set_book_date': some value}],
+                'timer': ['WaitingTimer', {'lesson_date': some value}],
                 'driver': ['Driver', {'drivername': some value, 'password': some value}],
                 'booker': ['Booker', {'time_periods': some value, 'lesson_type': some value}]
             }],

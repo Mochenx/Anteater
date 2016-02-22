@@ -107,7 +107,7 @@ class UTWaitingTimer(unittest.TestCase):
         seven_days = timedelta(days=7)
         loc_time = datetime.now()
         self.offset_n_minutes(loc_time, func_get_offset_minute=lambda e: e + 3)
-        self.dut.set_book_date = loc_time + seven_days
+        self.dut.lesson_date = loc_time + seven_days
         book_time = self.dut.get_debut_time(loc_time)
         self.assertEqual(book_time.day, loc_time.day)
         self.assertEqual(book_time.hour, self.dut.debut_hour)
@@ -122,7 +122,7 @@ class UTWaitingTimer(unittest.TestCase):
             eight_days = timedelta(days=8+i)
             loc_time = datetime.now()
             self.offset_n_minutes(loc_time, func_get_offset_minute=lambda e: e + 3)
-            self.dut.set_book_date = loc_time + eight_days
+            self.dut.lesson_date = loc_time + eight_days
             book_time = self.dut.get_debut_time(loc_time)
             wake_up_date = loc_time + timedelta(days=1+i)
             self.assertEqual(book_time.day, wake_up_date.day)
@@ -151,8 +151,8 @@ class UTWaitingTimer(unittest.TestCase):
             _7_8_days = timedelta(days=1+i)
             loc_time = datetime.now()
             self.offset_n_minutes(loc_time, func_get_offset_minute=lambda e: e - 3)
-            self.dut.set_book_date = loc_time + _7_8_days
-            print('Round {0}: want {1} in {2}'.format(i, str(self.dut.set_book_date), str(_7_8_days)))
+            self.dut.lesson_date = loc_time + _7_8_days
+            print('Round {0}: want {1} in {2}'.format(i, str(self.dut.lesson_date), str(_7_8_days)))
             book_time = self.dut.get_debut_time(loc_time)
             print('Wake up at {0}'.format(str(book_time)))
             wake_up_date = loc_time + timedelta(days=1)
@@ -168,8 +168,8 @@ class UTWaitingTimer(unittest.TestCase):
             _7_8_days = timedelta(days=9+i)
             loc_time = datetime.now()
             self.offset_n_minutes(loc_time, func_get_offset_minute=lambda e: e - 3)
-            self.dut.set_book_date = loc_time + _7_8_days
-            print('Round {0}: want {1} in {2}'.format(i, str(self.dut.set_book_date), str(_7_8_days)))
+            self.dut.lesson_date = loc_time + _7_8_days
+            print('Round {0}: want {1} in {2}'.format(i, str(self.dut.lesson_date), str(_7_8_days)))
             book_time = self.dut.get_debut_time(loc_time)
             print('Wake up at {0}'.format(str(book_time)))
             wake_up_date = loc_time + timedelta(days=2+i)
@@ -233,7 +233,7 @@ class UTWaitingTimer(unittest.TestCase):
         loc_time = datetime.now()
         self.offset_n_minutes(loc_time, func_get_offset_minute=lambda e: e - 3)
         expt_date = loc_time + _9_days
-        self.dut.set_book_date = expt_date
+        self.dut.lesson_date = expt_date
         book_date = self.dut.get_book_date(loc_time)
         self.assertEqual(expt_date.year, book_date.year)
         self.assertEqual(expt_date.month, book_date.month)
@@ -270,9 +270,9 @@ class UTWaitingTimer(unittest.TestCase):
 
     def test_book_now_0(self):
         dut_book_now = BookNowTimer()
-        dut_book_now.load_properties(session=self.session, set_book_date='Jan 1 2020')
+        dut_book_now.load_properties(session=self.session, lesson_date='Jan 1 2020')
         loc_time = dut_book_now.get_server_time()
         book_time = dut_book_now.run()
         wait_end_time = dut_book_now.get_server_time()
 
-        self.assertLess(wait_end_time - loc_time, timedelta(seconds=1))
+        self.assertLessEqual(wait_end_time - loc_time, timedelta(seconds=1))

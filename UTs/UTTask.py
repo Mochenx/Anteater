@@ -22,7 +22,7 @@ class UTTask(unittest.TestCase):
     def test_creation_n_properties_of_booker(self):
         task_descripton = {
             'name': 'creation_n_properties_of_booker', 'retry_times': '3',
-            'timer': ['WaitingTimer', {'set_book_date': 'Jan 01 2017'}],
+            'timer': ['WaitingTimer', {'lesson_date': 'Jan 01 2017'}],
             'driver': ['Driver', {'drivername': 'mm', 'password': '112233'}],
             'booker': ['Booker', {'time_periods': 'Morning', 'lesson_type': '2'}]
         }
@@ -62,7 +62,7 @@ class UTTask(unittest.TestCase):
     def test_t_minus(self):
         task_descripton = {
             'name': 't_minus', 'retry_times': '3',
-            'timer': ['WaitingTimer', {'set_book_date': 'Jan 01 2017'}],
+            'timer': ['WaitingTimer', {'lesson_date': 'Jan 01 2017'}],
             'driver': ['Driver', {'drivername': 'mm', 'password': '112233'}],
             'booker': ['Booker', {'time_periods': 'Morning', 'lesson_type': '2'}]
         }

@@ -63,13 +63,12 @@ class Timer(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 
 
 class BookNowTimer(Timer):
-    def __init__(self, **kwargs):
-        super(Timer, self).__init__(**kwargs)
+    """ A Timer which return immediately """
 
     @classmethod
     def create(cls):
         cls.new_property('session')
-        cls.new_property('set_book_date')
+        cls.new_property('lesson_date')
         return BookNowTimer()
 
     def load_properties(self, **kwargs):
@@ -77,10 +76,10 @@ class BookNowTimer(Timer):
             self.session = kwargs['session']
         elif self.session is None:
             raise ValueError('Property session are needed for class Timer')
-        if 'set_book_date' in kwargs:
-            self.set_book_date = self.localize_date(kwargs['set_book_date'])
+        if 'lesson_date' in kwargs:
+            self.lesson_date = self.localize_date(kwargs['lesson_date'])
         else:
-            raise KeyError('Not Found Setting: set_book_date')
+            raise KeyError('Not Found Setting: lesson_date')
 
     def run(self):
         loc_time = self.get_server_time()
@@ -88,7 +87,7 @@ class BookNowTimer(Timer):
         return book_date.strftime('%Y%m%d')
 
     def get_book_date(self, debut_time):
-        the_day_of_do_booking = self.set_book_date
+        the_day_of_do_booking = self.lesson_date
         book_date = debut_time.replace(year=the_day_of_do_booking.year,
                                        month=the_day_of_do_booking.month,
                                        day=the_day_of_do_booking.day)
@@ -96,16 +95,15 @@ class BookNowTimer(Timer):
 
 
 class WaitingTimer(Timer):
+    """ A Timer which sleeps for days and wake up at calculated date & time """
 
-    def __init__(self, **kwargs):
-        super(Timer, self).__init__(**kwargs)
-        self.debut_hour, self.debut_minute = 7, 34  # 7:34 AM
-        self.days_in_advance = 7  #of days
+    debut_hour, debut_minute = 7, 34  # 7:34 AM
+    days_in_advance = 7  #of days
 
     @classmethod
     def create(cls):
         cls.new_property('session')
-        cls.new_property('set_book_date')
+        cls.new_property('lesson_date')
         return WaitingTimer()
 
     def load_properties(self, **kwargs):
@@ -113,9 +111,9 @@ class WaitingTimer(Timer):
             self.session = kwargs['session']
         elif self.session is None:
             raise ValueError('Property session are needed for class Timer')
-        if 'set_book_date' in kwargs:
+        if 'lesson_date' in kwargs:
             # TODO: How to deal with the raised exception
-            self.set_book_date = self.localize_date(kwargs['set_book_date'])
+            self.lesson_date = self.localize_date(kwargs['lesson_date'])
 
     def run(self):
         while True:
@@ -146,13 +144,13 @@ class WaitingTimer(Timer):
         """
         now_is_later_than_debut = lambda: ((loc_time.hour == self.debut_hour and loc_time.minute > self.debut_minute) or
                                             loc_time.hour >= self.debut_hour + 1)
-        user_wants_later_than = lambda day: (self.set_book_date is not None and
-                                             self.set_book_date - timedelta(days=self.days_in_advance) > day)
+        user_wants_later_than = lambda day: (self.lesson_date is not None and
+                                             self.lesson_date - timedelta(days=self.days_in_advance) > day)
         today = loc_time
         tomorrow = loc_time + timedelta(days=1)
         some_days_later = today
-        if self.set_book_date is not None:
-            some_days_later = self.set_book_date - timedelta(self.days_in_advance)
+        if self.lesson_date is not None:
+            some_days_later = self.lesson_date - timedelta(self.days_in_advance)
 
         if now_is_later_than_debut() and user_wants_later_than(tomorrow):
             book_day = some_days_later
@@ -184,8 +182,8 @@ class WaitingTimer(Timer):
         return sleep_span
 
     def get_book_date(self, debut_time):
-        the_day_of_do_booking = ((debut_time + timedelta(self.days_in_advance)) if self.set_book_date is None
-                                 else self.set_book_date)
+        the_day_of_do_booking = ((debut_time + timedelta(self.days_in_advance)) if self.lesson_date is None
+                                 else self.lesson_date)
         book_date = debut_time.replace(year=the_day_of_do_booking.year,
                                        month=the_day_of_do_booking.month,
                                        day=the_day_of_do_booking.day)
