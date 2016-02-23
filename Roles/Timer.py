@@ -16,6 +16,7 @@ __author__ = 'mochenx'
 
 class Timer(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
     supported_date_formats = ['%Y%m%d', '%Y-%m-%d', '%b %d %Y']
+    return_date_format = '%Y%m%d'
 
     @staticmethod
     def localize_date(date_str):
@@ -61,6 +62,10 @@ class Timer(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
     def run(self):
         raise NotImplementedError('Method run must be implemented in sub class of Timer')
 
+    @property
+    def schedule_date(self):
+        raise NotImplementedError('Method schedule_date must be implemented in sub class of Timer')
+
 
 class BookNowTimer(Timer):
     """ A Timer which return immediately """
@@ -92,6 +97,11 @@ class BookNowTimer(Timer):
                                        month=the_day_of_do_booking.month,
                                        day=the_day_of_do_booking.day)
         return book_date
+
+    @property
+    def schedule_date(self):
+        loc_time = self.get_server_time()
+        return loc_time.strftime(self.return_date_format)
 
 
 class WaitingTimer(Timer):
@@ -194,3 +204,15 @@ class WaitingTimer(Timer):
 
         return "WaitingTimer: {0} => {1}".format(debut_time.strftime('%d %b %X'),
                                                  book_date.strftime('%d %b %X'))
+
+    @property
+    def schedule_date(self):
+        book_date, debut_time, loc_time = self.calc_date()
+        if self.lesson_date is None:
+            schedule_date = loc_time
+        elif ((debut_time.year, debut_time.month, debut_time.day) ==
+                  (loc_time.year, loc_time.month, loc_time.day)):
+            schedule_date = loc_time
+        else:
+            schedule_date = debut_time - timedelta(day=1)
+        return schedule_date.strftime(self.return_date_format)
