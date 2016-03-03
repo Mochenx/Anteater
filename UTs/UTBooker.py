@@ -223,3 +223,11 @@ class car_xmls(object):
                   }
                 ]_1</string>
         """
+
+    # TODO: Apply new car structure
+    """
+        {\r\n    \"YYRQ\": \"20160307\",\r\n    \"XNSD\": \"710\",\r\n    \"CNBH\": \"08163\"\r\n  }
+        {\r\n    \"YYRQ\": \"20160307\",\r\n    \"XNSD\": \"1112\",\r\n    \"CNBH\": \"08163\"\r\n  }
+        {\r\n    \"YYRQ\": \"20160308\",\r\n    \"XNSD\": \"1315\",\r\n    \"CNBH\": \"08079\"\r\n  }
+        {\r\n    \"YYRQ\": \"20160308\",\r\n    \"XNSD\": \"1518\",\r\n    \"CNBH\": \"08264\"\r\n  }
+    """
