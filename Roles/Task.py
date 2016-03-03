@@ -23,7 +23,7 @@ class Task(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 class WaitToTimeTask(Task):
     """{'Task': ['WaitToTimeTask', {
                     'name' : 'some values',
-                    'timer': ['WaitingTimer', {'set_book_date': some value}],
+                    'timer': ['WaitingTimer', {'lesson_date': some value}],
                     'driver': ['Driver', {'drivername': some value, 'password': some value}],
                     'booker': ['Booker', {'time_periods': some value, 'lesson_type': some value}]
                 }
@@ -34,7 +34,7 @@ class WaitToTimeTask(Task):
             'drivername': '',
             'password': '',
             # To Timer
-            'set_book_date': '',
+            'lesson_date': '',
             # To Booker
             'time_periods': '',
             'lesson_type': '',
