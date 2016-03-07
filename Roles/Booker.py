@@ -118,11 +118,15 @@ class Booker(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
     @staticmethod
     def _convert_time_period(time_period='Morning'):
         if re.match(r'^\s*Morning\s*$', time_period, re.IGNORECASE) is not None:
-            time_period_in_server_fmt = '812'
+            time_period_in_server_fmt = '710'
+        elif re.match(r'^\s*Noon1\s*$', time_period, re.IGNORECASE) is not None:
+            time_period_in_server_fmt = '1112'
+        elif re.match(r'^\s*Noon1\s*$', time_period, re.IGNORECASE) is not None:
+            time_period_in_server_fmt = '1315'
         elif re.match(r'^\s*Afternoon\s*$', time_period, re.IGNORECASE) is not None:
-            time_period_in_server_fmt = '15'
+            time_period_in_server_fmt = '1518'
         elif re.match(r'^\s*(Evening|Night)\s*$', time_period, re.IGNORECASE) is not None:
-            time_period_in_server_fmt = '58'
+            time_period_in_server_fmt = '1820'
         else:
             raise ValueError('Time span should be Morning, Afternoon or Evening/Night, '
                              'instead of {0}'.format(time_period))

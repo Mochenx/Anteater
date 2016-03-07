@@ -50,32 +50,32 @@ class UTBooker(unittest.TestCase):
         self.assertRaises(ValueError, _no_session)
 
     def test_convert_time_period_exception(self):
-        self.assertRaises(ValueError, lambda: self.dut._convert_time_period(time_period='812'))
+        self.assertRaises(ValueError, lambda: self.dut._convert_time_period(time_period='710'))
         self.assertRaises(ValueError, lambda: self.dut._convert_time_period(time_period='Morn ing'))
 
     def test_convert_time_period_morning(self):
-        self.assertEqual('812', self.dut._convert_time_period(time_period='Morning'))
-        self.assertEqual('812', self.dut._convert_time_period(time_period='   Morning'))
-        self.assertEqual('812', self.dut._convert_time_period(time_period='Morning '))
-        self.assertEqual('812', self.dut._convert_time_period(time_period='   morning  '))
+        self.assertEqual('710', self.dut._convert_time_period(time_period='Morning'))
+        self.assertEqual('710', self.dut._convert_time_period(time_period='   Morning'))
+        self.assertEqual('710', self.dut._convert_time_period(time_period='Morning '))
+        self.assertEqual('710', self.dut._convert_time_period(time_period='   morning  '))
 
     def test_convert_time_period_afternoon(self):
-        self.assertEqual('15', self.dut._convert_time_period(time_period='Afternoon'))
-        self.assertEqual('15', self.dut._convert_time_period(time_period='   Afternoon'))
-        self.assertEqual('15', self.dut._convert_time_period(time_period='Afternoon  '))
-        self.assertEqual('15', self.dut._convert_time_period(time_period='   afternoon  '))
+        self.assertEqual('1518', self.dut._convert_time_period(time_period='Afternoon'))
+        self.assertEqual('1518', self.dut._convert_time_period(time_period='   Afternoon'))
+        self.assertEqual('1518', self.dut._convert_time_period(time_period='Afternoon  '))
+        self.assertEqual('1518', self.dut._convert_time_period(time_period='   afternoon  '))
 
     def test_convert_time_period_evening(self):
-        self.assertEqual('58', self.dut._convert_time_period(time_period='Evening'))
-        self.assertEqual('58', self.dut._convert_time_period(time_period='   Evening'))
-        self.assertEqual('58', self.dut._convert_time_period(time_period='Evening  '))
-        self.assertEqual('58', self.dut._convert_time_period(time_period='   evening  '))
+        self.assertEqual('1820', self.dut._convert_time_period(time_period='Evening'))
+        self.assertEqual('1820', self.dut._convert_time_period(time_period='   Evening'))
+        self.assertEqual('1820', self.dut._convert_time_period(time_period='Evening  '))
+        self.assertEqual('1820', self.dut._convert_time_period(time_period='   evening  '))
 
     def test_convert_time_period_night(self):
-        self.assertEqual('58', self.dut._convert_time_period(time_period='Night'))
-        self.assertEqual('58', self.dut._convert_time_period(time_period='   Night'))
-        self.assertEqual('58', self.dut._convert_time_period(time_period='Night  '))
-        self.assertEqual('58', self.dut._convert_time_period(time_period='   night  '))
+        self.assertEqual('1820', self.dut._convert_time_period(time_period='Night'))
+        self.assertEqual('1820', self.dut._convert_time_period(time_period='   Night'))
+        self.assertEqual('1820', self.dut._convert_time_period(time_period='Night  '))
+        self.assertEqual('1820', self.dut._convert_time_period(time_period='   night  '))
 
     def exe_test_of_get_car_stat_qurey(self, expt_time_periods, date):
         if not isinstance(expt_time_periods, list):
@@ -91,22 +91,22 @@ class UTBooker(unittest.TestCase):
     def test_get_car_stat_qurey_morning(self):
         stimu = {'date': '20141213', 'time_periods': 'Morning', 'lesson_type': '1'}
         self.dut.load_properties(session=self.shared_session, **stimu)
-        self.exe_test_of_get_car_stat_qurey('812', stimu['date'])
+        self.exe_test_of_get_car_stat_qurey('710', stimu['date'])
 
     def test_get_car_stat_qurey_night(self):
         stimu = {'date': '20141228', 'time_periods': 'night', 'lesson_type': '1'}
         self.dut.load_properties(session=self.shared_session, **stimu)
-        self.exe_test_of_get_car_stat_qurey('58', stimu['date'])
+        self.exe_test_of_get_car_stat_qurey('1820', stimu['date'])
 
     def test_get_car_stat_qurey_morning_afternoon(self):
         stimu = {'date': '20141213', 'time_periods': ['Morning', 'afternoon'], 'lesson_type': '1'}
         self.dut.load_properties(session=self.shared_session, **stimu)
-        self.exe_test_of_get_car_stat_qurey(['15', '812'], stimu['date'])
+        self.exe_test_of_get_car_stat_qurey(['1518', '710'], stimu['date'])
 
     def test_get_car_stat_qurey_whole_day(self):
         stimu = {'date': '20141213', 'time_periods': ['Morning', 'afternoon', 'Night'], 'lesson_type': '1'}
         self.dut.load_properties(session=self.shared_session, **stimu)
-        self.exe_test_of_get_car_stat_qurey(['15', '812', '58'], stimu['date'])
+        self.exe_test_of_get_car_stat_qurey(['1518', '710', '1820'], stimu['date'])
 
     def test_parse_car_info_json_tc0(self):
         """
@@ -128,10 +128,10 @@ class UTBooker(unittest.TestCase):
         self.assertEqual('05178', cars_info[-1]['CNBH'])
 
     def test_create_cars(self):
-        stimu = [{"YYRQ": "20141221", "XNSD": "812", "CNBH": "70032"},
-                 {"YYRQ": "20141221", "XNSD": "812", "CNBH": "70040"},
-                 {"YYRQ": "20141221", "XNSD": "812", "CNBH": "70041"},
-                 {"YYRQ": "20141221", "XNSD": "812", "CNBH": "70058"}]
+        stimu = [{"YYRQ": "20141221", "XNSD": "710", "CNBH": "70032"},
+                 {"YYRQ": "20141221", "XNSD": "710", "CNBH": "70040"},
+                 {"YYRQ": "20141221", "XNSD": "710", "CNBH": "70041"},
+                 {"YYRQ": "20141221", "XNSD": "710", "CNBH": "70058"}]
         self.dut.load_properties(session=self.shared_session, time_periods='Morning', lesson_type='2')
         cars = self.dut._create_cars(stimu)
         for i, v in enumerate(stimu):
@@ -152,73 +152,73 @@ class UTBooker(unittest.TestCase):
 class car_xmls(object):
     cars_xml_0 = """<?xml version="1.0" encoding="utf-8"?>
         <string xmlns="http://tempuri.org/">
-        [   { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70032" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70040" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70041" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70058" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70064" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70063" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70073" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70035" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70050" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70055" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70068" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70034" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70039" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70045" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70046" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70027" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70062" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70065" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70033" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70038" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70042" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70066" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70037" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70053" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70059" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70060" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70061" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70067" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70044" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70047" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70049" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70052" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70036" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70069" },
-            { "YYRQ": "20141221", "XNSD": "812", "CNBH": "70051" } ]_0
+        [   { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70032" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70040" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70041" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70058" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70064" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70063" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70073" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70035" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70050" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70055" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70068" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70034" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70039" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70045" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70046" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70027" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70062" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70065" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70033" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70038" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70042" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70066" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70037" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70053" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70059" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70060" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70061" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70067" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70044" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70047" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70049" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70052" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70036" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70069" },
+            { "YYRQ": "20141221", "XNSD": "710", "CNBH": "70051" } ]_0
         </string>
         """
     cars_xml_1 = """<?xml version="1.0" encoding="utf-8"?>
                 <string xmlns="http://tempuri.org/">[
                   {
                     "YYRQ": "20141224",
-                    "XNSD": "812",
+                    "XNSD": "710",
                     "CNBH": "05093"
                   },
                   {
                     "YYRQ": "20141224",
-                    "XNSD": "812",
+                    "XNSD": "710",
                     "CNBH": "05122"
                   },
                   {
                     "YYRQ": "20141224",
-                    "XNSD": "812",
+                    "XNSD": "710",
                     "CNBH": "05121"
                   },
                   {
                     "YYRQ": "20141224",
-                    "XNSD": "812",
+                    "XNSD": "710",
                     "CNBH": "05171"
                   },
                   {
                     "YYRQ": "20141224",
-                    "XNSD": "812",
+                    "XNSD": "710",
                     "CNBH": "05175"
                   },
                   {
                     "YYRQ": "20141224",
-                    "XNSD": "812",
+                    "XNSD": "710",
                     "CNBH": "05178"
                   }
                 ]_1</string>
