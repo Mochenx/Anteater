@@ -75,7 +75,7 @@ class Booker(with_metaclass(RoleCreatorWithLogger, Role, Logger)):
 
     def parse_book_status(self, booking_rslt, date):
         _date = datetime.strptime(date, '%Y%m%d')
-        re_book_date = re.compile(r'\s*{0}\s*/\s*{1}/\s*{2}\s*'.format(_date.year, _date.month, _date.day))
+        re_book_date = re.compile(r'{0}'.format(_date.strftime('%Y-%m-%d')))
         tree = etree.parse(StringIO(booking_rslt.decode(encoding='utf-8')), etree.HTMLParser())
 
         for u in tree.iterfind('.//table'):
